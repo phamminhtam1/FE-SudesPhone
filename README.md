@@ -78,8 +78,6 @@
 
 ---
 
----
-
 ## 🧩 Công nghệ sử dụng
 
 - **Vue.js 3** (Composition API)
