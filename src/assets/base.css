@@ -1,0 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Hahmlet:wght@400;500;600;700&display=swap');
+@import 'ckeditor-tailwind-reset/ckeditor-tailwind-reset';
+
+@import 'tailwindcss';
+/* body {
+  font-family: 'Hahmlet', serif;
+} */

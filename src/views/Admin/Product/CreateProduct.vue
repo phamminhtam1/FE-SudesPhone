@@ -1,0 +1,277 @@
+<script setup>
+import LeftMenu from '@/components/layout/backend/LeftMenu.vue'
+import HeaderAdmin from '@/components/layout/backend/HeaderAdmin.vue'
+import Swal from 'sweetalert2'
+import { ref, reactive, onMounted } from 'vue'
+import axios from '@/plugins/axion'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const errors = reactive({})
+const loading = ref(false)
+
+const name = ref('')
+const short_desc = ref('')
+const long_desc = ref('')
+const price = ref('')
+const discount_price = ref('')
+const warranty_months = ref('')
+const keywords = ref('')
+const selectedCategory = ref('')
+const cat_id = ref([])
+
+const files = ref([])
+const previews = ref([])
+
+const specs = ref([{ spec_key: '', spec_value: '' }])
+
+function handleImage(e) {
+  const selected = Array.from(e.target.files || [])
+  previews.value = []
+  files.value = []
+
+  selected.forEach(file => {
+    if (
+      file instanceof File &&
+      file.type.startsWith('image/') &&
+      file.name &&
+      file.size > 0
+    ) {
+      previews.value.push(URL.createObjectURL(file))
+      files.value.push(file)
+    }
+  })
+}
+
+function removeImage(idx) {
+  URL.revokeObjectURL(previews.value[idx])
+  previews.value.splice(idx, 1)
+  files.value.splice(idx, 1)
+}
+
+function addSpec() {
+  specs.value.push({ spec_key: '', spec_value: '' })
+}
+
+function removeSpec(index) {
+  specs.value.splice(index, 1)
+}
+
+async function fetchCategory() {
+  try {
+    const res = await axios.get('/api/category/leaf-only')
+    cat_id.value = res.data.category
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+async function submit() {
+  Object.keys(errors).forEach(key => delete errors[key])
+  loading.value = true
+
+  const form = new FormData()
+  form.append('name', name.value)
+  form.append('short_desc', short_desc.value)
+  form.append('long_desc', long_desc.value)
+  form.append('price', price.value)
+  form.append('discount_price', discount_price.value)
+  form.append('warranty_months', warranty_months.value)
+  form.append('keywords', keywords.value)
+  form.append('cat_id', selectedCategory.value)
+
+  specs.value.forEach((s, i) => {
+    form.append(`specs[${i}][spec_key]`, s.spec_key)
+    form.append(`specs[${i}][spec_value]`, s.spec_value)
+  })
+
+  files.value.forEach(file => {
+    if (
+      file instanceof File &&
+      file.type.startsWith('image/') &&
+      file.name &&
+      file.size > 0
+    ) {
+      form.append('images[]', file)
+    }
+  })
+
+  try {
+    await axios.post('/api/product/create', form)
+    Swal.fire({
+      icon: 'success',
+      title: 'Thành công',
+      text: 'Tạo sản phẩm thành công',
+      confirmButtonText: 'Đóng',
+    })
+    router.push({ name: 'product' })
+  } catch (err) {
+    if (err.response?.status === 422) {
+      const serverErrors = err.response.data.errors
+      Object.keys(serverErrors).forEach(key => {
+        errors[key] = serverErrors[key]
+      })
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Thất bại',
+        text: 'Có lỗi xảy ra khi tạo sản phẩm',
+        confirmButtonText: 'Đóng',
+      })
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(fetchCategory)
+
+onMounted(() => {
+  const data = localStorage.getItem('cloned_product')
+  if (data) {
+    const product = JSON.parse(data)
+    name.value = product.name
+    short_desc.value = product.short_desc
+    long_desc.value = product.long_desc
+    price.value = product.price
+    discount_price.value = product.discount_price
+    warranty_months.value = product.warranty_months
+    keywords.value = product.keywords
+    selectedCategory.value = product.selectedCategory
+    specs.value = product.specs.length ? product.specs : [{ spec_key: '', spec_value: '' }]
+    localStorage.removeItem('cloned_product')
+  }
+})
+</script>
+
+<template>
+  <LeftMenu />
+  <HeaderAdmin />
+  <div class="ml-57 min-h-screen bg-[#f3f3f3] py-10 px-10 overflow-x-auto">
+    <div class="grid md:grid-cols-2 gap-10 border bg-white border-zinc-300 px-7 py-3 rounded-xl">
+      <!-- LEFT -->
+      <div>
+        <!-- Tên sản phẩm -->
+        <div class="mb-6">
+          <label class="font-medium text-zinc-700 mb-1 block">Tên sản phẩm <span
+              class="text-red-500 ml-1">*</span></label>
+          <input v-model="name" type="text" class="w-full border border-zinc-400 bg-white px-3 h-10" />
+          <p v-if="errors.name" class="text-sm text-red-500 mt-1">{{ errors.name[0] }}</p>
+        </div>
+
+        <!-- Mô tả ngắn -->
+        <div class="mb-6">
+          <label class="font-medium text-zinc-700 mb-1 block">Mô tả ngắn <span
+              class="text-red-500 ml-1">*</span></label>
+          <textarea v-model="short_desc" rows="3" class="w-full border border-zinc-400 bg-white px-3 py-2"></textarea>
+          <p v-if="errors.short_desc" class="text-sm text-red-500 mt-1">{{ errors.short_desc[0] }}</p>
+        </div>
+
+        <!-- Mô tả chi tiết -->
+        <div class="mb-6">
+          <label class="font-medium text-zinc-700 mb-1 block">Mô tả chi tiết <span
+              class="text-red-500 ml-1">*</span></label>
+          <textarea v-model="long_desc" rows="10" class="w-full border border-zinc-400 bg-white px-3 py-2"></textarea>
+          <p v-if="errors.long_desc" class="text-sm text-red-500 mt-1">{{ errors.long_desc[0] }}</p>
+        </div>
+
+        <!-- Keywords -->
+        <div class="mb-6">
+          <label class="font-medium text-zinc-700 mb-1 block">Từ khoá SEO <span
+              class="text-red-500 ml-1">*</span></label>
+          <input v-model="keywords" type="text" class="w-full border border-zinc-400 bg-white px-3 h-10" />
+          <p v-if="errors.keywords" class="text-sm text-red-500 mt-1">{{ errors.keywords[0] }}</p>
+        </div>
+
+        <!-- Ảnh -->
+        <div class="mb-6">
+          <span class="font-medium text-zinc-700">Hình ảnh<span class="text-red-500 ml-1">*</span></span>
+          <label class="flex flex-col items-center justify-center bg-white w-[480px] h-[256px] p-3
+                 border-2 border-dashed border-zinc-400 text-zinc-500
+                 cursor-pointer hover:bg-zinc-50 rounded-lg">
+            <i class="fa-solid fa-camera text-2xl mb-2"></i>
+            <span class="text-sm">Chọn ảnh</span>
+            <input type="file" accept="image/*" multiple class="hidden" @change="handleImage" />
+            <p v-if="errors.images" class="text-sm text-red-500 mt-1">{{ errors.images[0] }}</p>
+          </label>
+          <div class="mt-3 flex flex-wrap gap-3">
+            <div v-for="(p, idx) in previews" :key="idx" class="relative group">
+              <img :src="p" class="w-32 h-32 object-cover rounded border" />
+              <button @click.prevent="removeImage(idx)"
+                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 text-xs hover:bg-red-600">
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div>
+        <!-- Giá và khuyến mãi -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="font-medium text-zinc-700 mb-1 block">Giá gốc<span class="text-red-500 ml-1">*</span></label>
+            <input v-model="price" type="number" class="w-full border border-zinc-400 bg-white px-3 h-10" />
+            <p v-if="errors.price" class="text-sm text-red-500 mt-1">{{ errors.price[0] }}</p>
+          </div>
+          <div>
+            <label class="font-medium text-zinc-700 mb-1 block">Giá Bán <span class="text-red-500 ml-1">*</span></label>
+            <input v-model="discount_price" type="number" class="w-full border border-zinc-400 bg-white px-3 h-10" />
+            <p v-if="errors.discount_price" class="text-sm text-red-500 mt-1">{{ errors.discount_price[0] }}</p>
+          </div>
+        </div>
+
+        <!-- Bảo hành và tồn kho -->
+        <div class="grid grid-cols-1 gap-4 mb-6">
+          <div>
+            <label class="font-medium text-zinc-700 mb-1 block">Bảo hành (tháng)<span
+                class="text-red-500 ml-1">*</span></label>
+            <input v-model="warranty_months" type="number" class="w-full border border-zinc-400 bg-white px-3 h-10" />
+            <p v-if="errors.warranty_months" class="text-sm text-red-500 mt-1">{{ errors.warranty_months[0] }}</p>
+          </div>
+        </div>
+        <!-- Danh mục -->
+        <div class="mb-6">
+          <label class="font-medium text-zinc-700 mb-1 block">Danh mục<span class="text-red-500 ml-1">*</span></label>
+          <select v-model="selectedCategory" class="w-full border border-zinc-400 bg-white px-3 h-10">
+            <option disabled value="">-- Chọn danh mục --</option>
+            <option v-for="cat in cat_id" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+          </select>
+          <p v-if="errors.cat_id" class="text-sm text-red-500 mt-1">{{ errors.cat_id[0] }}</p>
+        </div>
+        <!-- Specs -->
+        <div class="mb-6">
+          <label class="font-medium text-zinc-700 mb-2 block">Thông số kỹ thuật<span
+              class="text-red-500 ml-1">*</span></label>
+          <div v-for="(spec, index) in specs" :key="index" class="flex items-center gap-2 mb-3">
+            <input v-model="spec.spec_key" type="text" placeholder="Thuộc tính"
+              class="w-[45%] border border-zinc-400 bg-white px-3 h-10" />
+            <p v-if="errors[`specs.${index}.spec_key`]" class="text-sm text-red-500 mt-1">
+              {{ errors[`specs.${index}.spec_key`][0] }}
+            </p>
+            <input v-model="spec.spec_value" type="text" placeholder="Giá trị"
+              class="w-[45%] border border-zinc-400 bg-white px-3 h-10" />
+            <p v-if="errors[`specs.${index}.spec_value`]" class="text-sm text-red-500 mt-1">
+              {{ errors[`specs.${index}.spec_value`][0] }}
+            </p>
+            <button v-if="specs.length > 1" @click.prevent="removeSpec(index)"
+              class="text-red-500 hover:text-red-700 text-xl">−</button>
+          </div>
+
+          <button @click.prevent="addSpec" class="text-blue-600 hover:text-blue-800 text-sm mt-1">
+            + Thêm thuộc tính
+          </button>
+        </div>
+
+        <!-- Submit -->
+        <div class="mt-10">
+          <button @click="submit" :disabled="loading"
+            class="bg-[#2563EB] cursor-pointer hover:-translate-y-0.5 transition duration-300 text-white px-6 py-2 rounded-lg hover:opacity-90 disabled:opacity-50">
+            {{ loading ? 'Đang gửi...' : 'Thêm sản phẩm' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

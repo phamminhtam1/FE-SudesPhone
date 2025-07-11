@@ -1,0 +1,92 @@
+<script setup>
+import LeftMenu from '@/components/layout/backend/LeftMenu.vue'
+import HeaderAdmin from '@/components/layout/backend/HeaderAdmin.vue'
+import axios from '@/plugins/axion';
+import Swal from 'sweetalert2';
+import { ref } from 'vue';
+import router from '@/router';
+
+const name = ref('')
+const phone = ref('')
+const email = ref('')
+const address = ref('')
+const loading = ref(false)
+
+const submit = async () => {
+  loading.value = true
+  try {
+    const res = await axios.post('api/supplier/create', {
+      name: name.value,
+      phone: phone.value,
+      email: email.value,
+      address: address.value,
+    })
+    console.log(res)
+    Swal.fire({
+      icon: 'success',
+      title: 'Thành công',
+      text: 'Thêm nhà cung cấp thành công',
+      confirmButtonText: 'Đóng',
+    })
+    router.push({ name: 'supplier' })
+  }
+  catch (err) {
+    console.error(err)
+    Swal.fire({
+      icon: 'error',
+      title: 'Thất bại',
+      text: 'Có lỗi xảy ra khi thêm nhà cung cấp',
+      confirmButtonText: 'Đóng',
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
+</script>
+
+<template>
+  <LeftMenu />
+  <HeaderAdmin />
+  <div class="ml-57 h-screen bg-[#f3f3f3] py-10 px-50 overflow-x-auto">
+    <div class="grid md:grid-cols-1 gap-10">
+      <div>
+        <div class="mb-6">
+          <label class="font-medium text-zinc-700 mb-1 block">Tên nhà cung cấp <span
+              class="text-red-500 ml-1">*</span></label>
+          <input v-model="name" type="text" class="w-full border border-zinc-400 bg-white px-3 h-10" />
+        </div>
+        <div class="mb-6">
+          <label class="font-medium text-zinc-700 mb-1 block">Số điện thoại nhà cung cấp <span
+              class="text-red-500 ml-1">*</span></label>
+          <input v-model="phone" type="text" class="w-full border border-zinc-400 bg-white px-3 h-10" />
+        </div>
+        <div class="mb-6">
+          <label class="font-medium text-zinc-700 mb-1 block">Email nhà cung cấp <span
+              class="text-red-500 ml-1">*</span></label>
+          <input v-model="email" type="text" class="w-full border border-zinc-400 bg-white px-3 h-10" />
+        </div>
+        <div class="mb-6">
+          <label class="font-medium text-zinc-700 mb-1 block">Địa chỉ nhà cung cấp <span
+              class="text-red-500 ml-1">*</span></label>
+          <input v-model="address" type="text" class="w-full border border-zinc-400 bg-white px-3 h-10" />
+        </div>
+        <div class="flex justify-center">
+          <button @click.prevent="submit" :disabled="loading" class="text-white rounded-lg uppercase bg-[#6261CC] border-[#6261CC] border px-8 py-2
+               hover:bg-[#6261CC] hover:border-[#6261CC] cursor-pointer
+               hover:-translate-y-0.5 transition duration-300 disabled:opacity-50">
+            {{ loading ? 'Đang gửi...' : 'ADD' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</template>
+
+<style setup>
+.ck-editor__editable {
+  min-height: 400px;
+  max-height: 600px;
+}
+</style>
