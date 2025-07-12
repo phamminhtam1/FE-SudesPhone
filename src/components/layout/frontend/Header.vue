@@ -103,10 +103,12 @@ onMounted(async () => {
                 <div class="absolute top-full left-0 h-4 w-full bg-transparent z-40"></div>
                 <div
                   class="absolute top-full left-0 mt-3 w-64 bg-white text-black shadow-lg rounded-md p-2 z-50 hidden group-hover:block">
-                  <div class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded">
-                    <i class="fas fa-sign-in-alt w-5 text-gray-600"></i>
-                    <span>Đăng nhập</span>
-                  </div>
+                  <router-link :to="{ name: 'login-customer' }">
+                    <div class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded">
+                      <i class="fas fa-sign-in-alt w-5 text-gray-600"></i>
+                      <span>Đăng nhập</span>
+                    </div>
+                  </router-link>
                   <div class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded">
                     <i class="fas fa-user-plus w-5 text-gray-600"></i>
                     <span>Đăng ký</span>

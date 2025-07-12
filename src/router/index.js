@@ -25,7 +25,8 @@ import EditSupplier from '@/views/Admin/Supplier/EditSupplier.vue'
 import ListStockReceipt from '@/views/Admin/Stock/ListStockReceipt.vue'
 import CreateStockReceipt from '@/views/Admin/Stock/CreateStockReceipt.vue'
 import DetailStockReceipt from '@/views/Admin/Stock/DetailStockReceipt.vue'
-
+import LoginCustomerPage from '@/views/LoginCustomerPage.vue'
+import RegisterCustomerPage from '@/views/RegisterCustomerPage.vue'
 import ProductDetail from '@/views/ProductDetail.vue'
 import CategroyPage from '@/views/CategroyPage.vue'
 import FrontendLayout from '@/components/layout/frontend/FrontendLayout.vue'
@@ -203,18 +204,28 @@ const FERouters = [
     children: [
       { path: '', name: 'home', component: HomeView },
       {
-        path: 'product-detail/:id',
+        path: '/product-detail/:id',
         name: 'product-detail',
         component: ProductDetail,
         props: true,
         meta: { breadcrumb: 'productName' },
       },
       {
-        path: 'category/:id',
+        path: '/category/:id',
         name: 'fe-category',
         component: CategroyPage,
         props: true,
         meta: { breadcrumb: 'categoryName' },
+      },
+      {
+        path: '/login-customer',
+        name: 'login-customer',
+        component: LoginCustomerPage,
+      },
+      {
+        path: '/register-customer',
+        name: 'register-customer',
+        component: RegisterCustomerPage,
       },
     ],
   },

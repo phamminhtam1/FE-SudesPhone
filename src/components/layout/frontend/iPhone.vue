@@ -24,7 +24,7 @@ watch(activeTab, async (newTab) => {
         if (!categoryCounts[catId]) {
           categoryCounts[catId] = 0
         }
-        if (categoryCounts[catId] < 2) {
+        if (categoryCounts[catId] < 3) {
           categoryCounts[catId]++
           uniqueProducts.push(prod)
         }
