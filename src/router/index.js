@@ -27,6 +27,7 @@ import CreateStockReceipt from '@/views/Admin/Stock/CreateStockReceipt.vue'
 import DetailStockReceipt from '@/views/Admin/Stock/DetailStockReceipt.vue'
 import LoginCustomerPage from '@/views/LoginCustomerPage.vue'
 import RegisterCustomerPage from '@/views/RegisterCustomerPage.vue'
+import ProfileCustomerPage from '@/views/ProfileCustomerPage.vue'
 import ProductDetail from '@/views/ProductDetail.vue'
 import CategroyPage from '@/views/CategroyPage.vue'
 import FrontendLayout from '@/components/layout/frontend/FrontendLayout.vue'
@@ -226,6 +227,11 @@ const FERouters = [
         path: '/register-customer',
         name: 'register-customer',
         component: RegisterCustomerPage,
+      },
+      {
+        path: '/profile-customer',
+        name: 'profile-customer',
+        component: ProfileCustomerPage,
       },
     ],
   },

@@ -2,26 +2,46 @@
 import axios from 'axios';
 import { ref } from 'vue';
 import { onMounted } from 'vue';
-// import { setCache, getCache } from '@/composables/useCache'
+import { useAuth } from '@/composables/useAuth';
+import { useRouter } from 'vue-router';
+
+// Define component name to fix linter error
+defineOptions({
+  name: 'FrontendHeader'
+})
+
+const { isAuthenticated, logout } = useAuth()
+const router = useRouter()
 
 const category_tree = ref([])
 const categorys = ref([])
+const isMobileMenuOpen = ref(false)
+const isAccountDropdownOpen = ref(false)
+
+const handleLogout = () => {
+  logout()
+  router.push({ name: 'home' })
+}
+
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+  if (!isMobileMenuOpen.value) {
+    isAccountDropdownOpen.value = false
+  }
+}
+
+const toggleAccountDropdown = () => {
+  isAccountDropdownOpen.value = !isAccountDropdownOpen.value
+}
 onMounted(async () => {
-  // const cacheKey = 'category_tree'
-  // const cached = getCache(cacheKey)
-  // if (cached) {
-  //   category_tree.value = cached
-  // } else {
   try {
     const res_tree = await axios.get('/api/category/tree')
     const res_cate = await axios.get('/api/category')
     category_tree.value = res_tree.data.category
     categorys.value = res_cate.data.category
-    // setCache(cacheKey, category_tree.value)
   } catch (err) {
     console.error(err)
   }
-  // }
 })
 
 </script>
@@ -103,15 +123,32 @@ onMounted(async () => {
                 <div class="absolute top-full left-0 h-4 w-full bg-transparent z-40"></div>
                 <div
                   class="absolute top-full left-0 mt-3 w-64 bg-white text-black shadow-lg rounded-md p-2 z-50 hidden group-hover:block">
-                  <router-link :to="{ name: 'login-customer' }">
-                    <div class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded">
-                      <i class="fas fa-sign-in-alt w-5 text-gray-600"></i>
-                      <span>Đăng nhập</span>
+                  <div v-if="isAuthenticated">
+                    <router-link :to="{ name: 'profile-customer' }">
+                      <div class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded">
+                        <i class="fas fa-user w-5 text-gray-600"></i>
+                        <span>Tài khoản</span>
+                      </div>
+                    </router-link>
+                    <div @click="handleLogout"
+                      class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded cursor-pointer">
+                      <i class="fa fa-sign-out w-5 text-gray-600"></i>
+                      <span>Đăng xuất</span>
                     </div>
-                  </router-link>
-                  <div class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded">
-                    <i class="fas fa-user-plus w-5 text-gray-600"></i>
-                    <span>Đăng ký</span>
+                  </div>
+                  <div v-else>
+                    <router-link :to="{ name: 'login-customer' }">
+                      <div class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded">
+                        <i class="fas fa-sign-in-alt w-5 text-gray-600"></i>
+                        <span>Đăng nhập</span>
+                      </div>
+                    </router-link>
+                    <router-link :to="{ name: 'register-customer' }">
+                      <div class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded">
+                        <i class="fas fa-user-plus w-5 text-gray-600"></i>
+                        <span>Đăng ký</span>
+                      </div>
+                    </router-link>
                   </div>
                   <div class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded">
                     <i class="far fa-heart w-5 text-gray-600"></i>
@@ -180,14 +217,30 @@ onMounted(async () => {
             <div v-show="isAccountDropdownOpen"
               class="pl-8 pt-2 space-y-1 transition-all duration-300 ease-in-out transform origin-top"
               :class="{ 'max-h-screen opacity-100 scale-y-100': isAccountDropdownOpen, 'max-h-0 opacity-0 scale-y-0 overflow-hidden': !isAccountDropdownOpen }">
-              <a href="#" class="flex items-center py-2 px-3 hover:bg-zinc-700 rounded-md">
-                <i class="fas fa-sign-in-alt w-5 text-gray-300 mr-2"></i>
-                <span>Đăng nhập</span>
-              </a>
-              <a href="#" class="flex items-center py-2 px-3 hover:bg-zinc-700 rounded-md">
-                <i class="fas fa-user-plus w-5 text-gray-300 mr-2"></i>
-                <span>Đăng ký</span>
-              </a>
+              <div v-if="isAuthenticated">
+                <router-link :to="{ name: 'profile-customer' }"
+                  class="flex items-center py-2 px-3 hover:bg-zinc-700 rounded-md">
+                  <i class="fas fa-user w-5 text-gray-300 mr-2"></i>
+                  <span>Tài khoản</span>
+                </router-link>
+                <div @click="handleLogout"
+                  class="flex items-center py-2 px-3 hover:bg-zinc-700 rounded-md cursor-pointer">
+                  <i class="fa fa-sign-out w-5 text-gray-300 mr-2"></i>
+                  <span>Đăng xuất</span>
+                </div>
+              </div>
+              <div v-else>
+                <router-link :to="{ name: 'login-customer' }"
+                  class="flex items-center py-2 px-3 hover:bg-zinc-700 rounded-md">
+                  <i class="fas fa-sign-in-alt w-5 text-gray-300 mr-2"></i>
+                  <span>Đăng nhập</span>
+                </router-link>
+                <router-link :to="{ name: 'register-customer' }"
+                  class="flex items-center py-2 px-3 hover:bg-zinc-700 rounded-md">
+                  <i class="fas fa-user-plus w-5 text-gray-300 mr-2"></i>
+                  <span>Đăng ký</span>
+                </router-link>
+              </div>
               <a href="#" class="flex items-center py-2 px-3 hover:bg-zinc-700 rounded-md">
                 <i class="far fa-heart w-5 text-gray-300 mr-2"></i>
                 <span>Danh sách yêu thích</span>
@@ -292,27 +345,7 @@ onMounted(async () => {
   </header>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      isMobileMenuOpen: false,
-      isAccountDropdownOpen: false
-    }
-  },
-  methods: {
-    toggleMobileMenu() {
-      this.isMobileMenuOpen = !this.isMobileMenuOpen
-      if (!this.isMobileMenuOpen) {
-        this.isAccountDropdownOpen = false;
-      }
-    },
-    toggleAccountDropdown() {
-      this.isAccountDropdownOpen = !this.isAccountDropdownOpen
-    }
-  }
-}
-</script>
+
 <style scoped>
 /* Custom scrollbar for mobile navigation */
 .header-menu .overflow-x-auto::-webkit-scrollbar {

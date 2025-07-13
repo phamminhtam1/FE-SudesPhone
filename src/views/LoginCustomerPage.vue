@@ -4,12 +4,14 @@ import { ref } from 'vue'
 import { reactive } from 'vue'
 import router from '@/router'
 import axios from 'axios'
+import { useAuth } from '@/composables/useAuth'
 
 const { emit } = getCurrentInstance()
 onMounted(() => {
   emit('update-product-name', { productName: 'Đăng nhập tài khoản' })
 })
 
+const { login } = useAuth()
 const loading = ref(false)
 const errors = reactive({})
 const email = ref('')
@@ -22,10 +24,21 @@ async function submit() {
   form.append('email', email.value)
   form.append('password', password.value)
   try {
-    await axios.post('/api/customer/login', form)
-    router.push('/')
+    const res = await axios.post('/api/customer/login', form)
+    login(res.data.customer)
+    router.push({ name: 'profile-customer' })
   } catch (err) {
-    console.error(err)
+    if (err.response?.status === 422) {
+      const serverErrors = err.response.data.errors
+      Object.keys(serverErrors).forEach(key => {
+        errors[key] = serverErrors[key]
+      })
+    }
+    else if (err.response?.status === 402) {
+      errors.general = err.response.data.message
+    }
+  } finally {
+    loading.value = false
   }
 }
 
@@ -38,8 +51,11 @@ async function submit() {
         <h1 class="text-xl text-center uppercase mb-5">Đăng nhập</h1>
         <div class="flex flex-col gap-3">
           <input v-model="email" class="border border-zinc-300 p-2" type="email" placeholder="Email">
+          <div v-if="errors.email" class="text-red-600">{{ errors.email[0] }}</div>
           <input v-model="password" class="border border-zinc-300 p-2" type="password" placeholder="Mật khẩu">
+          <div v-if="errors.password" class="text-red-600">{{ errors.password[0] }}</div>
         </div>
+        <div v-if="errors.general" class="text-red-600">{{ errors.general }}</div>
         <button @click.prevent="submit" :disabled="loading"
           class="bg-black text-white w-full p-2 mt-3  font-medium cursor-pointer hover:bg-red-600 rounded-lg">
           {{ loading ? 'Đang xác thực...' : 'Đăng nhập' }}
