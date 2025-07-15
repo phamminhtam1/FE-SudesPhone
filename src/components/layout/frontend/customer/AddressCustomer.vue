@@ -8,6 +8,7 @@ defineProps({
 })
 
 const isAdding = ref(false)
+const isEditting = ref(false)
 const citys = ref([])
 const regions = ref([])
 const wards = ref([])
@@ -17,6 +18,7 @@ const selectWard = ref('')
 const selectLabel = ref('')
 const line = ref('')
 const is_default = ref(false)
+const editingAddressId = ref(null)
 
 const emit = defineEmits(['address-updated'])
 
@@ -52,14 +54,45 @@ onMounted(fetchcity)
 
 async function addAddress() {
   isAdding.value = true
+  selectLabel.value = ''
+  line.value = ''
+  selectLabel.value = ''
+  selectCity.value = ''
 }
 
 async function back() {
   isAdding.value = false
+  isEditting.value = false
+}
+
+async function editting(address) {
+  isEditting.value = true;
+  editingAddressId.value = address.id; // Lưu id lại
+  selectLabel.value = address.label;
+  line.value = address.line;
+  is_default.value = address.is_default === '1' || address.is_default === 1
+
+  const selectedCity = citys.value.find(c => c.name.trim() === address.city.trim());
+  if (selectedCity) {
+    selectCity.value = selectedCity.id;
+    await fetchRegion(selectedCity.id);
+
+    const selectedRegion = regions.value.find(r => r.name.trim() === address.region.trim());
+    if (selectedRegion) {
+      selectRegion.value = selectedRegion.id;
+      await fetchWard(selectedRegion.id);
+
+      const selectedWard = wards.value.find(w => w.name.trim() === address.ward.trim());
+      if (selectedWard) {
+        selectWard.value = selectedWard.id;
+      }
+    }
+  }
 }
 
 async function saveAddress() {
   isAdding.value = false
+
   try {
     const selectedCity = citys.value.find(c => c.id === selectCity.value)
     const selectedRegion = regions.value.find(r => r.id === selectRegion.value)
@@ -79,13 +112,35 @@ async function saveAddress() {
   }
 }
 
+async function editAddress() {
+  isEditting.value = false
+  try {
+    const selectedCity = citys.value.find(c => c.id === selectCity.value)
+    const selectedRegion = regions.value.find(r => r.id === selectRegion.value)
+    const selectedWard = wards.value.find(w => w.id === selectWard.value)
+
+    const form = new FormData()
+    form.append('_method', 'PUT')
+    form.append('label', selectLabel.value)
+    form.append('line', line.value)
+    form.append('city', selectedCity?.name || '')
+    form.append('region', selectedRegion?.name || '')
+    form.append('ward', selectedWard?.name || '');
+    form.append('is_default', is_default.value ? '1' : '0')
+    await axios.post(`/api/customer/address/edit/${editingAddressId.value}`, form)
+    emit('address-updated')
+  } catch (err) {
+    console.error(err)
+  }
+}
+
 </script>
 
 <template>
   <div class="flex justify-between items-center">
     <h2 class="text-2xl font-semibold text-gray-800">Sổ địa chỉ</h2>
     <div class="flex gap-5">
-      <button v-if="isAdding" @click.prevent="back"
+      <button v-if="isAdding || isEditting" @click.prevent="back"
         class="px-4 py-2 bg-black text-white rounded-lg hover:bg-black transition-colors cursor-pointer flex justify-center items-center">
         <svg viewBox="0 0 32 32" width="24" height="24" version="1.1" xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink" fill="currentColor">
@@ -95,7 +150,7 @@ async function saveAddress() {
         </svg>
         <span class="ml-2">Trở về</span>
       </button>
-      <button v-if="!isAdding" @click.prevent="addAddress"
+      <button v-if="!isAdding && !isEditting" @click.prevent="addAddress"
         class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors cursor-pointer flex justify-center items-center">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -105,7 +160,7 @@ async function saveAddress() {
         </svg>
         <span>Thêm địa chỉ mới</span>
       </button>
-      <button v-else @click.prevent="saveAddress"
+      <button v-if="isAdding && !isEditting" @click.prevent="saveAddress"
         class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors cursor-pointer flex justify-center items-center">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -115,6 +170,17 @@ async function saveAddress() {
           <polyline points="7 3 7 8 15 8"></polyline>
         </svg>
         <span>Lưu địa chỉ</span>
+      </button>
+      <button v-if="isEditting" @click.prevent="editAddress"
+        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors cursor-pointer flex justify-center items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="lucide lucide-save h-4 w-4 mr-2">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+          <polyline points="17 21 17 13 7 13 7 21"></polyline>
+          <polyline points="7 3 7 8 15 8"></polyline>
+        </svg>
+        <span>Sửa địa chỉ</span>
       </button>
     </div>
   </div>
@@ -175,22 +241,82 @@ async function saveAddress() {
       </div>
     </div>
   </div>
-  <div v-else class="space-y-4">
+  <div v-if="!isAdding && !isEditting" class="space-y-4">
     <div class="border border-gray-200 rounded-lg p-4" v-for="addre in address" :key="addre.id">
       <div class="flex justify-between items-start mb-3">
         <div>
           <p class="font-medium">{{ addre.label }}</p>
-          <p class="text-sm text-gray-600">{{ addre.line }}</p>
-          <p class="text-sm text-gray-600">{{ phone }}</p>
+          <p class="text-sm text-gray-600 mt-1">{{ addre.line + ", " + addre.ward + ", " + addre.region + ", " +
+            addre.city }}</p>
+          <p class="text-sm text-gray-600 mt-1">{{ phone }}</p>
         </div>
         <div class="flex gap-2">
-          <button class="text-blue-500 hover:text-blue-700">Sửa</button>
-          <button class="text-red-500 hover:text-red-700">Xóa</button>
+          <button @click.prevent="editting(addre)" class="text-blue-500 hover:text-blue-700 cursor-pointer">Sửa</button>
+          <button class="text-red-500 hover:text-red-700 cursor-pointer">Xóa</button>
         </div>
       </div>
       <span v-if="addre.is_default == '1'"
         class="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Địa chỉ mặc
         định</span>
+    </div>
+  </div>
+  <div>
+    <div class="space-y-4" v-if="isEditting">
+      <div class="border border-gray-200 rounded-lg p-4">
+        <div class="flex flex-col gap-2">
+          <label>Loại địa chỉ<span class="text-red-500 ml-1">*</span></label>
+          <div class="border border-zinc-300 p-2 rounded-lg">
+            <select v-model="selectLabel" name="" id=""
+              class="w-full cursor-pointer appearance-none border-none focus:ring-0 focus:outline-none bg-transparent">
+              <option value="">Chọn loại địa chỉ</option>
+              <option value="Nhà riêng">Nhà riêng</option>
+              <option value="Văn phòng">Văn phòng</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-5 mt-6">
+          <div class="flex flex-col gap-2">
+            <label>Tỉnh/Thành phố<span class="text-red-500 ml-1">*</span></label>
+            <div class="border border-zinc-300 p-2 rounded-lg">
+              <select v-model="selectCity" name="" id=""
+                class="w-full cursor-pointer  border-none focus:ring-0 focus:outline-none bg-transparent">
+                <option value="">Chọn Tỉnh/Thành phố</option>
+                <option v-for="city in citys" :key="city.id" :value="city.id">{{ city.name }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label>Quận/Huyện<span class="text-red-500 ml-1">*</span></label>
+            <div class="border border-zinc-300 p-2 rounded-lg">
+              <select v-model="selectRegion" name="" id=""
+                class="w-full cursor-pointer appearance-none border-none focus:ring-0 focus:outline-none bg-transparent">
+                <option value="">Chọn Quận/Huyện</option>
+                <option v-for="region in regions" :key="region.id" :value="region.id">{{ region.name }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label>Phường/Xã<span class="text-red-500 ml-1">*</span></label>
+            <div class="border border-zinc-300 p-2 rounded-lg">
+              <select v-model="selectWard" name="" id=""
+                class="w-full cursor-pointer appearance-none border-none focus:ring-0 focus:outline-none bg-transparent">
+                <option value="">Chọn Phường/Xã</option>
+                <option v-for="ward in wards" :key="ward.id" :value="ward.id">{{ ward.name }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 flex flex-col gap-2">
+          <label>Địa chỉ cụ thể<span class="text-red-500 ml-1">*</span></label>
+          <textarea v-model="line" name="" id="" placeholder="Nhập tên đường, số nhà,..." rows="4"
+            class="border border-zinc-300 rounded-lg p-2"></textarea>
+        </div>
+        <div class="mt-4 flex items-center gap-2">
+          <input type="checkbox" id="default-address" v-model="is_default"
+            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-0" />
+          <label for="default-address" class="text-gray-700">Đặt làm địa chỉ mặc định</label>
+        </div>
+      </div>
     </div>
   </div>
 </template>
