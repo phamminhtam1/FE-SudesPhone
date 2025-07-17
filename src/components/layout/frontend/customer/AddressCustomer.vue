@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref, watch, defineEmits } from 'vue';
 import axios from '@/plugins/axioscustomer'
+import Swal from 'sweetalert2';
 
 defineProps({
   address: Array,
@@ -134,6 +135,29 @@ async function editAddress() {
   }
 }
 
+async function goDelete(addre_id) {
+  const result = await Swal.fire({
+    title: 'Xác nhận xóa',
+    text: 'Bạn có chắc chắn muốn xóa vị trí này?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Xóa',
+    cancelButtonText: 'Hủy'
+  })
+
+  if (result.isConfirmed) {
+    try {
+      await axios.delete(`/api/customer/address/delete/${addre_id}`)
+      Swal.fire('Đã xóa!', 'Địa chỉ này đã được xóa thành công.', 'success')
+      emit('address-updated')
+    } catch (err) {
+      console.error(err)
+    }
+  }
+}
+
 </script>
 
 <template>
@@ -252,7 +276,8 @@ async function editAddress() {
         </div>
         <div class="flex gap-2">
           <button @click.prevent="editting(addre)" class="text-blue-500 hover:text-blue-700 cursor-pointer">Sửa</button>
-          <button class="text-red-500 hover:text-red-700 cursor-pointer">Xóa</button>
+          <button @click.prevent="goDelete(addre.id)"
+            class="text-red-500 hover:text-red-700 cursor-pointer">Xóa</button>
         </div>
       </div>
       <span v-if="addre.is_default == '1'"

@@ -164,9 +164,11 @@ onMounted(async () => {
               <!-- Cart -->
               <div class="relative flex items-center px-2 py-1 text-white">
                 <a href="/gio-hang" class="relative flex items-center px-2 py-1 text-white cursor-pointer">
-                  <i class="fas fa-shopping-cart text-xl"></i>
+                  <router-link :to="{ name: 'my-cart' }" class="fas fa-shopping-cart text-xl"></router-link>
                   <div>
-                    <span class="text-sm ml-2">Giỏ hàng</span>
+                    <router-link :to="{ name: 'my-cart' }">
+                      <span class="text-sm ml-2">Giỏ hàng</span>
+                    </router-link>
                     <span
                       class="absolute -top-1 left-4 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center ml-2">1</span>
                   </div>

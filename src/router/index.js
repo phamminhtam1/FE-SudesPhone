@@ -30,6 +30,7 @@ import RegisterCustomerPage from '@/views/RegisterCustomerPage.vue'
 import ProfileCustomerPage from '@/views/ProfileCustomerPage.vue'
 import ProductDetail from '@/views/ProductDetail.vue'
 import CategroyPage from '@/views/CategroyPage.vue'
+import CartPage from '@/views/CartPage.vue'
 import FrontendLayout from '@/components/layout/frontend/FrontendLayout.vue'
 
 // Branch routes
@@ -184,7 +185,7 @@ const StockReceipt = [
   },
   {
     path: '/admin/purchase/stock-receipt/create',
-    name: 'create_supplier',
+    name: 'create_stock-receipt',
     component: CreateStockReceipt,
     meta: { requiresAuth: true, name_page: 'Tạo phiếu nhập kho' },
   },
@@ -232,6 +233,11 @@ const FERouters = [
         path: '/profile-customer',
         name: 'profile-customer',
         component: ProfileCustomerPage,
+      },
+      {
+        path: '/cart',
+        name: 'my-cart',
+        component: CartPage,
       },
     ],
   },
