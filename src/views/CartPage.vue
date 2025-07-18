@@ -1,4 +1,5 @@
 <script setup>
+import axios from 'axios'
 import { getCurrentInstance } from 'vue'
 import { ref, computed } from 'vue'
 import { onMounted } from 'vue'
@@ -8,17 +9,28 @@ onMounted(() => {
   emit('update-product-name', { productName: 'Giỏ hàng' })
 })
 
-// Danh sách sản phẩm mẫu
-const cartItems = ref([
-  {
-    id: 1,
-    name: 'iPad Air 5 512GB 5G - Chính hãng VN',
-    color: 'Tím',
-    price: 28990000,
-    quantity: 1,
-    image: 'https://bizweb.dktcdn.net/thumb/compact/100/480/632/products/220309064807-ipad-air-select-wif-2b2b105e-ce80-4b74-9ca3-4a2cfc4502b1.jpg'
+// Thay thế bằng cartItems lấy từ API
+const cartItems = ref([])
+
+onMounted(async () => {
+  const res = await axios.get('/api/customer/cart/me')
+  const c = res.data.cart
+  if (Array.isArray(c) && c.length > 0) {
+    cartItems.value = c[0].items.map(item => {
+      const product = item.product[0]
+      return {
+        id: item.id,
+        name: product.name,
+        color: product.specs?.find(s => s.spec_key === 'Màu sắc')?.spec_value || '',
+        price: Number(product.discount_price),
+        quantity: item.qty,
+        image: product.images?.[0]?.img_url || ''
+      }
+    })
+  } else {
+    cartItems.value = []
   }
-])
+})
 
 // Tăng số lượng
 const increase = (item) => {
@@ -59,10 +71,11 @@ const formatPrice = (number) => {
     </div>
 
     <!-- Danh sách sản phẩm -->
-    <div v-for="item in cartItems" :key="item.id" class="grid grid-cols-10 items-center border-b px-4 py-4">
+    <div v-for="item in cartItems" :key="item.id"
+      class="grid grid-cols-10 items-center border-b-zinc-300 border-b px-4 py-4">
       <!-- Thông tin sản phẩm -->
       <div class="flex items-center gap-4 col-span-4">
-        <img :src="item.image" alt="" class="w-[100px] h-[100px] object-cover rounded-md" />
+        <img :src="item.image" alt="" class="w-[100px] h-[140px] object-fixed rounded-md" />
         <div>
           <h2 class="text-base font-medium">{{ item.name }}</h2>
           <p class="text-sm text-gray-500">{{ item.color }}</p>

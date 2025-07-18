@@ -2,6 +2,7 @@
 import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Navigation } from 'vue3-carousel';
 import { onMounted, ref, getCurrentInstance } from 'vue';
+import Swal from 'sweetalert2';
 import axios from 'axios';
 import Loading from '@/components/Loading.vue'
 
@@ -14,7 +15,8 @@ const props = defineProps({
   }
 })
 
-const productId = props.id
+// Đổi productId thành ref
+const productId = ref(props.id)
 const name = ref('')
 const cat_id = ref('')
 const short_desc = ref('')
@@ -87,6 +89,7 @@ const selectColor = (color) => {
   // Cập nhật sản phẩm theo màu và bộ nhớ trong đầu tiên
   const productWithColor = getProductByColor(color)
   if (productWithColor) {
+    productId.value = productWithColor.prod_id // Cập nhật productId
     name.value = productWithColor.name
     price.value = productWithColor.price
     discount_price.value = productWithColor.discount_price
@@ -107,6 +110,7 @@ const selectStorage = (storage) => {
   selectedStorage.value = storage
   const productWithStorage = getProductByStorage(storage)
   if (productWithStorage) {
+    productId.value = productWithStorage.prod_id // Cập nhật productId
     name.value = productWithStorage.name
     price.value = productWithStorage.price
     discount_price.value = productWithStorage.discount_price
@@ -168,9 +172,10 @@ const fetchRelatedProducts = async () => {
 
 onMounted(async () => {
   try {
-    const res = await axios.get(`/api/product/${productId}`)
+    const res = await axios.get(`/api/product/${props.id}`)
     const p = res.data.product
 
+    productId.value = p.prod_id // Cập nhật productId khi load sản phẩm chính
     name.value = p.name
     cat_id.value = p.cat_id
     short_desc.value = p.short_desc
@@ -235,8 +240,28 @@ const getColorClass = (colorName) => {
   }
   return colorMap[colorName] || 'bg-gray-400'
 }
-</script>
 
+async function addCart() {
+  const form = new FormData
+  form.append('prod_id', productId.value) // Sử dụng productId mới nhất
+  form.append('qty', quantity.value)
+  try {
+    await axios.post('/api/customer/cart/create', form)
+    for (let pair of form.entries()) {
+      console.log(`${pair[0]}: ${pair[1]}`);
+    }
+    Swal.fire({
+      icon: 'success',
+      title: 'Thành công',
+      text: 'Đã thêm vào giỏ hàng',
+      confirmButtonText: 'Đóng',
+    })
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+</script>
 
 <template>
   <Loading v-if="isLoading" />
@@ -356,7 +381,7 @@ const getColorClass = (colorName) => {
             </button>
           </div>
         </div>
-        <div class="grid grid-cols-10 mt-8 gap-5 p">
+        <div @click.prevent="addCart" class="grid grid-cols-10 mt-8 gap-5 p">
           <div
             class="col-span-7 flex flex-col justify-center items-center bg-black text-white rounded-lg p-2 font-medium hover:bg-red-600 cursor-pointer transition duration-200">
             <h1 class="text-xl">MUA NGAY</h1>
@@ -370,7 +395,7 @@ const getColorClass = (colorName) => {
                 d="M21 5L19 12H7.37671M20 16H8L6 3H3M16 5.5H13.5M13.5 5.5H11M13.5 5.5V8M13.5 5.5V3M9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20C7 19.4477 7.44772 19 8 19C8.55228 19 9 19.4477 9 20ZM20 20C20 20.5523 19.5523 21 19 21C18.4477 21 18 20.5523 18 20C18 19.4477 18.4477 19 19 19C19.5523 19 20 19.4477 20 20Z"
                 stroke="#ec2222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
-            <span>Thêm vào giỏ</span>
+            <button class="cursor-pointer">Thêm vào giỏ</button>
           </div>
         </div>
       </div>
