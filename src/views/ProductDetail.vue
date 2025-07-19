@@ -3,7 +3,7 @@ import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Navigation } from 'vue3-carousel';
 import { onMounted, ref, getCurrentInstance } from 'vue';
 import Swal from 'sweetalert2';
-import axios from 'axios';
+import axios from '@/plugins/axioscustomer'
 import Loading from '@/components/Loading.vue'
 
 const isLoading = ref(true)

@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, getCurrentInstance, reactive } from 'vue'
 import router from '@/router'
-import axios from 'axios'
+import axios from '@/plugins/axioscustomer'
 import { ref } from 'vue'
 
 const { emit } = getCurrentInstance()

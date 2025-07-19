@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue'
-import axios from 'axios'
+import axios from '@/plugins/axioscustomer'
 import { defineProps } from 'vue'
 import { getCurrentInstance } from 'vue';
 

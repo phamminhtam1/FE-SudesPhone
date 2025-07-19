@@ -7,6 +7,10 @@ import { useAuth } from '@/composables/useAuth'
 import router from '@/router'
 import AccountCustomer from '@/components/layout/frontend/customer/AccountCustomer.vue'
 import AddressCustomer from '@/components/layout/frontend/customer/AddressCustomer.vue'
+import { useProfileStore } from '@/stores/customerprofile'
+import { storeToRefs } from 'pinia'
+
+const profileStore = useProfileStore()
 
 const { emit } = getCurrentInstance()
 onMounted(() => {

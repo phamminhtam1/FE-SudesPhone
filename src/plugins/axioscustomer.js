@@ -18,23 +18,23 @@ axios.interceptors.request.use(
 )
 
 // Add a response interceptor
-axios.interceptors.response.use(
-  (response) => {
-    return response
-  },
-  async (error) => {
-    const originalRequest = error.config
+// axios.interceptors.response.use(
+//   (response) => {
+//     return response
+//   },
+//   async (error) => {
+//     const originalRequest = error.config
 
-    // If the error is 401 and we haven't retried yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
+//     // If the error is 401 and we haven't retried yet
+//     if (error.response?.status === 402 && !originalRequest._retry) {
+//       originalRequest._retry = true
 
-      localStorage.removeItem('customer_token')
-      window.location.href = '/login-customer'
-    }
+//       localStorage.removeItem('customer_token')
+//       window.location.href = '/login-customer'
+//     }
 
-    return Promise.reject(error)
-  },
-)
+//     return Promise.reject(error)
+//   },
+// )
 
 export default axios

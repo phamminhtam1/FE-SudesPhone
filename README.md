@@ -133,3 +133,69 @@ npm run build
 - `/api/stock-receipt`: Phiếu nhập xuất
   Vân vân mây mây
   ........
+
+---
+
+# FE_Vue - Đồng bộ giỏ hàng với Pinia
+
+## Mục tiêu
+
+Đảm bảo số lượng sản phẩm trong giỏ hàng luôn được cập nhật realtime trên Header, bất kể thao tác ở trang nào (CartPage, ProductDetail, ...).
+
+## Cách triển khai
+
+### 1. Tạo Pinia store cho giỏ hàng
+
+- File: `src/stores/cart.js`
+- Store này quản lý:
+  - Danh sách sản phẩm trong giỏ hàng (`cartItems`)
+  - Tổng số lượng sản phẩm (`count`)
+  - Tổng tiền (`totalPrice`)
+  - Các action: lấy giỏ hàng từ API, tăng/giảm số lượng, xóa sản phẩm
+
+### 2. Sử dụng store ở các component
+
+#### a. Header.vue
+
+- Import và sử dụng store để lấy `count`.
+- Khi Header mount, gọi `fetchCart()` để lấy dữ liệu mới nhất.
+- Hiển thị số lượng sản phẩm trên icon giỏ hàng bằng `{{ count }}`.
+
+#### b. CartPage.vue
+
+- Import và sử dụng store để lấy `cartItems`, `totalPrice`.
+- Render danh sách sản phẩm, tăng/giảm/xóa đều gọi action từ store.
+- Khi mount trang, gọi `fetchCart()` để đảm bảo dữ liệu mới nhất.
+
+#### c. ProductDetail.vue
+
+- Sau khi thêm sản phẩm vào giỏ hàng thành công, gọi `cartStore.fetchCart()` để cập nhật lại số lượng trên Header.
+
+### 3. Lợi ích
+
+- Mọi thao tác với giỏ hàng đều đồng bộ, không cần reload trang.
+- Không còn logic trùng lặp, dễ bảo trì.
+- Có thể mở rộng cho các trang khác chỉ bằng cách dùng chung store.
+
+## Ví dụ sử dụng trong component
+
+```js
+import { useCartStore } from '@/stores/cart'
+import { storeToRefs } from 'pinia'
+
+const cartStore = useCartStore()
+const { cartItems, count, totalPrice } = storeToRefs(cartStore)
+
+// Lấy giỏ hàng khi component mount
+onMounted(() => {
+  cartStore.fetchCart()
+})
+
+// Thêm sản phẩm xong thì gọi lại fetchCart để cập nhật
+await cartStore.fetchCart()
+```
+
+## Lưu ý
+
+- Đảm bảo đã cài Pinia và khai báo trong `main.js`.
+- Nếu có thêm trang/thao tác mới liên quan giỏ hàng, chỉ cần gọi lại `fetchCart()` sau khi thao tác.
