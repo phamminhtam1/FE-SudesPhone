@@ -9,8 +9,8 @@ import AccountCustomer from '@/components/layout/frontend/customer/AccountCustom
 import AddressCustomer from '@/components/layout/frontend/customer/AddressCustomer.vue'
 import { useProfileStore } from '@/stores/customerprofile'
 import { storeToRefs } from 'pinia'
-
 const profileStore = useProfileStore()
+const { profile } = storeToRefs(profileStore)
 
 const { emit } = getCurrentInstance()
 onMounted(() => {
@@ -45,18 +45,31 @@ onMounted(async () => {
     router.push({ name: 'login-customer' })
     return
   }
-  try {
-    const res = await axios.get('/api/customer/me')
-    name.value = (res.data.customer.first_name + " " + res.data.customer.last_name)
-    email.value = res.data.customer.email
-    phone.value = res.data.customer.phone
-    date.value = res.data.customer.created_at
-    address.value = res.data.customer.address
-    console.log(address.value);
-  } catch (err) {
-    console.error(err)
+  if (!profile.value) {
+    await profileStore.fetchProfile()
+  }
+
+  // Gán các field hiển thị
+  if (profile.value) {
+    name.value = `${profile.value.first_name} ${profile.value.last_name}`
+    email.value = profile.value.email
+    phone.value = profile.value.phone
+    date.value = profile.value.created_at
+    address.value = profile.value.address || []
   }
 })
+//   try {
+//     const res = await axios.get('/api/customer/me')
+//     name.value = (res.data.customer.first_name + " " + res.data.customer.last_name)
+//     email.value = res.data.customer.email
+//     phone.value = res.data.customer.phone
+//     date.value = res.data.customer.created_at
+//     address.value = res.data.customer.address
+//     console.log(address.value);
+//   } catch (err) {
+//     console.error(err)
+//   }
+// })
 
 async function logout() {
   try {

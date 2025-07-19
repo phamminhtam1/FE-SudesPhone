@@ -16,5 +16,6 @@ export const useProfileStore = defineStore('profile', () => {
 
   return {
     fetchProfile,
+    profile,
   }
 })

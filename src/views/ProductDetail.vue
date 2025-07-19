@@ -5,6 +5,7 @@ import { onMounted, ref, getCurrentInstance } from 'vue';
 import Swal from 'sweetalert2';
 import axios from '@/plugins/axioscustomer'
 import Loading from '@/components/Loading.vue'
+import { useCartStore } from '@/stores/cart'
 
 const isLoading = ref(true)
 
@@ -241,12 +242,15 @@ const getColorClass = (colorName) => {
   return colorMap[colorName] || 'bg-gray-400'
 }
 
+const cartStore = useCartStore()
+
 async function addCart() {
   const form = new FormData
   form.append('prod_id', productId.value) // Sử dụng productId mới nhất
   form.append('qty', quantity.value)
   try {
     await axios.post('/api/customer/cart/create', form)
+    await cartStore.fetchCart()
     for (let pair of form.entries()) {
       console.log(`${pair[0]}: ${pair[1]}`);
     }

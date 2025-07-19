@@ -5,6 +5,8 @@ import { reactive } from 'vue'
 import router from '@/router'
 import axios from 'axios'
 import { useAuth } from '@/composables/useAuth'
+import { useCartStore } from '@/stores/cart'
+import { useProfileStore } from '@/stores/customerprofile'
 
 const { emit } = getCurrentInstance()
 onMounted(() => {
@@ -12,6 +14,8 @@ onMounted(() => {
 })
 
 const { login } = useAuth()
+const cartStore = useCartStore()
+const profileStore = useProfileStore()
 const loading = ref(false)
 const errors = reactive({})
 const email = ref('')
@@ -26,6 +30,8 @@ async function submit() {
   try {
     const res = await axios.post('/api/customer/login', form)
     login(res.data.customer)
+    await cartStore.fetchCart()
+    await profileStore.fetchProfile()
     router.push({ name: 'profile-customer' })
   } catch (err) {
     if (err.response?.status === 422) {
