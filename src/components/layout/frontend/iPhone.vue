@@ -1,8 +1,7 @@
 <script setup>
-import axios from 'axios';
+import axios from '@/plugins/axioscustomer'
 import { ref } from 'vue';
 import { onMounted } from 'vue';
-import Loading from '@/components/Loading.vue';
 import { watch } from 'vue';
 // import { setCache, getCache } from '@/composables/useCache'
 
@@ -10,7 +9,7 @@ const products = ref([])
 const category_children = ref([])
 const categories = ref([])
 const activeTab = ref('')
-const isLoading = ref(true)
+
 
 watch(activeTab, async (newTab) => {
   if (newTab) {
@@ -38,6 +37,8 @@ watch(activeTab, async (newTab) => {
 
 onMounted(async () => {
   const category = await axios.get('/api/category/tree')
+  console.log(category);
+
   categories.value = category.data.category.find(c => c.slug === 'iphone')
   category_children.value = categories.value.children
   if (category_children.value.length > 0) {
@@ -45,7 +46,6 @@ onMounted(async () => {
     const product = await axios.get(`/api/category/product/${activeTab.value}`)
     products.value = product.data.product.data
   }
-  isLoading.value = false
 })
 
 const tabClass = (tabId) => {
@@ -54,13 +54,10 @@ const tabClass = (tabId) => {
     : 'text-gray-500 pb-2 hover:text-black cursor-pointer'
 }
 
-console.log(products);
 
 </script>
 
 <template>
-  <Loading v-if="isLoading" />
-
   <div class="max-w-7xl mx-auto">
     <h1 class="font-medium text-3xl uppercase mb-6 text-zinc-700 text-center">IPHONE</h1>
     <!-- Tabs -->

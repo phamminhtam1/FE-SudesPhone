@@ -2,7 +2,7 @@
 import { Carousel, Slide, Navigation } from 'vue3-carousel'
 import 'vue3-carousel/carousel.css'
 import { onMounted, ref } from 'vue'
-import axios from 'axios'
+import axios from '@/plugins/axioscustomer'
 // import { setCache, getCache } from '@/composables/useCache'
 
 const products = ref([])

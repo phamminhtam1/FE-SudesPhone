@@ -157,7 +157,7 @@ const setSort = (value) => {
               <div class="flex flex-col -mt-6">
                 <a href="#" class=" flex justify-center items-center">
                   <img class="transform scale-95 group-hover:scale-100 duration-300 w-[250px] h-[310px]"
-                    :src="prod.images[1].img_url" alt="iPhone 12" />
+                    :src="prod.images[0].img_url" alt="iPhone 12" />
                 </a>
                 <!-- Thẻ thông tin -->
                 <div class="flex flex-col -mt-10 items-start z-10 space-y-1 ml-2">

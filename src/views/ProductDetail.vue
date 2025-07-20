@@ -270,7 +270,7 @@ async function addCart() {
 <template>
   <Loading v-if="isLoading" />
   <div v-else class="max-w-7xl mx-auto">
-    <div class="grid grid-cols-9 w-full pt-10">
+    <div class="grid grid-cols-9 w-full pt-2">
       <div class="col-span-3 mt-6">
         <div class=" flex justify-center items-center h-105 overflow-hidden">
           <img

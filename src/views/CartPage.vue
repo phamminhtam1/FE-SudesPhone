@@ -87,10 +87,12 @@ const formatPrice = (number) => {
           <p class="uppercase">Tổng tiền:</p>
           <span class="text-red-700 text-lg font-semibold">{{ formatPrice(totalPrice) }}</span>
         </div>
-        <button
-          class="text-lg uppercase font-normal text-white border border-black w-full bg-black py-1 rounded-lg mt-2 hover:bg-red-600 hover:border-red-600 cursor-pointer transition-transform duration-200 hover:scale-101">
-          Thanh toán
-        </button>
+        <router-link :to="{ name: 'checkout' }">
+          <button
+            class="text-lg uppercase font-normal text-white border border-black w-full bg-black py-1 rounded-lg mt-2 hover:bg-red-600 hover:border-red-600 cursor-pointer transition-transform duration-200 hover:scale-101">
+            Thanh toán
+          </button>
+        </router-link>
       </div>
     </div>
     <!-- <div class="flex justify-between items-center mt-6">

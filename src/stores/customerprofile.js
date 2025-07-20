@@ -1,7 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import axios from 'axios'
-
+import axios from '@/plugins/axioscustomer'
 export const useProfileStore = defineStore('profile', () => {
   const profile = ref(null)
 

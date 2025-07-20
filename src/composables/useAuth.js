@@ -12,8 +12,9 @@ const checkAuthStatus = () => {
 
 // Function để đăng nhập
 const login = (customerData) => {
-  localStorage.setItem('customer_id', customerData.customer.cust_id)
+  localStorage.setItem('customer_id', customerData.cust_id)
   localStorage.setItem('customer_token', customerData.token)
+
   isCustomerLoggedIn.value = true
 
   // Dispatch custom event để thông báo thay đổi
