@@ -13,6 +13,7 @@ export const useCartStore = defineStore('cart', () => {
         const product = item.product[0]
         return {
           id: item.id,
+          prod_id: product.prod_id,
           name: product.name,
           color: product.specs?.find((s) => s.spec_key === 'Màu sắc')?.spec_value || '',
           price: Number(product.discount_price),

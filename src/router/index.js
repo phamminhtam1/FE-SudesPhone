@@ -33,6 +33,7 @@ import CategroyPage from '@/views/CategroyPage.vue'
 import CartPage from '@/views/CartPage.vue'
 import FrontendLayout from '@/components/layout/frontend/FrontendLayout.vue'
 import CheckoutPage from '@/views/CheckoutPage.vue'
+import CheckoutDonePage from '@/views/CheckoutDonePage.vue'
 
 // Branch routes
 const branchRoutes = [
@@ -246,6 +247,11 @@ const FERouters = [
     path: '/checkout',
     name: 'checkout',
     component: CheckoutPage,
+  },
+  {
+    path: '/checkout/thankyou',
+    name: 'checkoutdone',
+    component: CheckoutDonePage,
   },
 ]
 

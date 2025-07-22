@@ -1,10 +1,18 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import intlTelInput from 'intl-tel-input'
 import 'intl-tel-input/build/css/intlTelInput.css'
 import axiosCustomer from '@/plugins/axioscustomer'
+import { useCartStore } from '@/stores/cart'
+import { useProfileStore } from '@/stores/customerprofile'
+import { storeToRefs } from 'pinia'
+import Swal from 'sweetalert2'
+import router from '@/router'
+const cartStore = useCartStore()
+const profileStore = useProfileStore()
+const { cartItems, totalPrice } = storeToRefs(cartStore)
+const { addresses, profile } = storeToRefs(profileStore)
 
-const fullName = ref('')
 const phone = ref('')
 const isFullNameFocused = ref(false)
 const isPhoneFocused = ref(false)
@@ -15,6 +23,8 @@ const note = ref('')
 const isNoteFocused = ref(false)
 const sale = ref('')
 const issale = ref(false)
+const shipping_fee = ref(40000)
+const discount = ref(0)
 
 onMounted(() => {
   if (phoneInputRef.value) {
@@ -33,7 +43,8 @@ onMounted(() => {
     })
   }
   fetchProvince()
-  fetchAddress()
+  cartStore.fetchCart()
+  profileStore.fetchProfile()
 })
 
 onBeforeUnmount(() => {
@@ -80,21 +91,65 @@ async function fetchWard(district_id) {
   wards.value = res.data
 }
 
-//Profile
 const selectedAddress = ref('')
-const addresses = ref([])
-const email = ref('')
-const first_name = ref('')
-const last_name = ref('')
-async function fetchAddress() {
-  const res = await axiosCustomer.get('/api/customer/me')
-  const c = res.data.customer
-  addresses.value = c.address
-  email.value = c.email
-  phone.value = c.phone
-  first_name.value = c.first_name
-  last_name.value = c.last_name
-  fullName.value = first_name.value + " " + last_name.value
+const email = computed(() => profile.value?.email)
+const name = ref('')
+
+const formatPrice = (number) => {
+  return number.toLocaleString('vi-VN') + '₫'
+}
+
+watch(selectedAddress, () => {
+  selectedWard.value = ''
+  selectedProvince.value = ''
+  selectedDistrict.value = ''
+})
+
+async function submit() {
+  let phoneNumber = '';
+  if (iti) {
+    phoneNumber = iti.getNumber();
+    if (!phoneNumber) {
+      // Nếu không lấy được số quốc tế, fallback về số người dùng nhập
+      phoneNumber = phoneInputRef.value.value;
+    }
+  }
+  const address_customer = selectedAddress.value ? `${selectedAddress.value.line}, ${selectedAddress.value.ward}, ${selectedAddress.value.region}, ${selectedAddress.value.city}` : ''
+  const order_items = cartItems.value.map(item => ({
+    prod_id: item.prod_id,
+    qty: item.quantity,
+    unit_price: item.price
+  }))
+  const form = new FormData();
+  form.append('order_status', 'pending')
+  form.append('payment_status', 'unpaid')
+  form.append('name', name.value)
+  form.append('phone', phoneNumber)
+  form.append('sub_total', totalPrice.value)
+  form.append('shipping_fee', shipping_fee.value)
+  form.append('discount', discount.value)
+  form.append('total_amount', totalPrice.value - shipping_fee.value - discount.value)
+  form.append('address_customer', address_customer)
+  order_items.forEach((item, idx) => {
+    form.append(`order_items[${idx}][prod_id]`, item.prod_id);
+    form.append(`order_items[${idx}][qty]`, item.qty);
+    form.append(`order_items[${idx}][unit_price]`, item.unit_price);
+  });
+  for (let pair of form.entries()) {
+    console.log(pair[0] + ':', pair[1]);
+  }
+  try {
+    await axiosCustomer.post('/api/customer/order/create', form)
+    Swal.fire({
+      icon: 'success',
+      title: 'Thành công',
+      text: 'Tạo sản phẩm thành công',
+      confirmButtonText: 'Đóng',
+    })
+    router.push({ name: 'checkoutdone' })
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 </script>
@@ -115,7 +170,7 @@ async function fetchAddress() {
                 <select v-model="selectedAddress"
                   class="w-full border border-zinc-300 rounded-lg py-1 px-3 pt-5 pr-12 text-gray-500 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue-200 appearance-none">
                   <option value="">---</option>
-                  <option v-for="address in addresses" :key="address.id" :value="address.id">{{ address.line + " " +
+                  <option v-for="address in addresses" :key="address.id" :value="address">{{ address.line + " " +
                     address.ward + " " + address.region }}</option>
                 </select>
                 <label class="absolute left-3 top-3 pb-1 text-xs text-gray-400 bg-white  pointer-events-none"
@@ -136,18 +191,17 @@ async function fetchAddress() {
                 <span class=" absolute left-3 top-1 pb-1 text-xs text-gray-500 ">Email</span>
               </div>
               <div class="w-full relative">
-                <input type="text" name="" id="" v-model="fullName" @focus="isFullNameFocused = true"
+                <input type="text" name="" id="" v-model="name" @focus="isFullNameFocused = true"
                   @blur="isFullNameFocused = false"
                   class="border border-zinc-300 w-full rounded-lg py-1 px-3 pt-5 pr-8 text-[15px] focus:outline-none focus:ring-2 focus:ring-blue-200">
                 <span :class="[
-                  (isFullNameFocused || fullName)
+                  (isFullNameFocused || name)
                     ? 'absolute left-3 top-1 pb-1 text-xs text-gray-500 pointer-events-none transition-all duration-200'
                     : 'absolute left-3 top-3 text-[14px] text-gray-400 pointer-events-none transition-all duration-200'
                 ]">Họ và tên</span>
               </div>
               <div class="w-full relative">
-                <input ref="phoneInputRef" type="tel" :value="phone" @focus="isPhoneFocused = true"
-                  @blur="isPhoneFocused = false">
+                <input ref="phoneInputRef" type="tel" @focus="isPhoneFocused = true" @blur="isPhoneFocused = false">
                 <span :class="[
                   'phone-label',
                   (isPhoneFocused || isPhoneHasValue)
@@ -266,37 +320,22 @@ async function fetchAddress() {
         </div>
       </div>
 
-      <div class="col-span-4 w-full shadow-2xl bg-[#FAFAFA]">
+      <div class="col-span-4 w-full shadow-lg bg-[#FAFAFA]">
         <div class="p-5 border-b border-zinc-300">
           <span class="text-[20px] font-medium text-start">Đơn hàng (4 sản phẩm)</span>
         </div>
-        <div class="px-5 py-3 flex justify-between gap-3 items-center">
+        <div class="px-5 py-3 flex justify-between gap-3 items-center" v-for="item in cartItems" :key="item.id">
           <div class="flex gap-4 relative">
-            <img class="w-[50px] h-[57px] border border-zinc-300 rounded-lg self-end"
-              src="https://bizweb.dktcdn.net/thumb/thumb/100/480/632/products/220309064807-ipad-air-select-wif-2b2b105e-ce80-4b74-9ca3-4a2cfc4502b1.jpg?v=1681772949763"
-              alt="">
+            <img class="w-[50px] h-[57px] border border-zinc-300 rounded-lg self-end" :src="item.image" alt="">
             <label
-              class=" absolute -top-1 left-9 border border-[#2A9DCC] text-white bg-[#2A9DCC] rounded-full px-1.5 text-[12px] font-medium">1</label>
+              class=" absolute -top-1 left-9 border border-[#2A9DCC] text-white bg-[#2A9DCC] rounded-full px-1.5 text-[12px] font-medium">{{
+                item.quantity }}</label>
             <div>
-              <span class="text-[14px]">iPad Air 5 512GB 5G - Chính hãng VN</span>
-              <p class="text-[13px] text-zinc-400">Tím</p>
+              <span class="text-[14px]">{{ item.name }} - Chính hãng VN</span>
+              <p class="text-[13px] text-zinc-400">{{ item.color }}</p>
             </div>
           </div>
-          <span class="text-[16px] text-zinc-500">28.990.000₫</span>
-        </div>
-        <div class="px-5 flex justify-between gap-3 items-center">
-          <div class="flex gap-4 relative">
-            <img class="w-[50px] h-[57px] border border-zinc-300 rounded-lg self-end"
-              src="https://bizweb.dktcdn.net/thumb/thumb/100/480/632/products/210916030223-promax-01.jpg?v=1681769957783"
-              alt="">
-            <label
-              class=" absolute -top-1 left-9 border border-[#2A9DCC] text-white bg-[#2A9DCC] rounded-full px-1.5 text-[12px] font-medium">3</label>
-            <div>
-              <span class="text-[14px]">iPad Air 5 512GB 5G - Chính hãng VN</span>
-              <p class="text-[13px] text-zinc-400">Tím</p>
-            </div>
-          </div>
-          <span class="text-[16px] text-zinc-500">28.990.000₫</span>
+          <span class="text-[16px] text-zinc-500">{{ formatPrice(item.price * item.quantity) }}</span>
         </div>
         <div class="border-b-1 border-zinc-300 mx-5 mt-4"></div>
         <div class="grid grid-cols-7 mt-4 mx-5 gap-3">
@@ -321,7 +360,7 @@ async function fetchAddress() {
               Tạm tính
             </span>
             <span class="text-[16px] text-zinc-500">
-              118.960.000₫
+              {{ formatPrice(totalPrice) }}
             </span>
           </div>
           <div class="flex justify-between mt-2">
@@ -329,7 +368,7 @@ async function fetchAddress() {
               Phí vận chuyển
             </span>
             <span class="text-[14px] text-zinc-500">
-              40.000₫
+              {{ formatPrice(shipping_fee) }}
             </span>
           </div>
         </div>
@@ -340,11 +379,11 @@ async function fetchAddress() {
               Tổng cộng
             </span>
             <span class="text-[20px] text-[#2A9DCE]">
-              119.000.000₫
+              {{ formatPrice(totalPrice - shipping_fee) }}
             </span>
           </div>
         </div>
-        <div class="mt-4 mx-5 flex justify-between items-center">
+        <div class="mt-4 mx-5 mb-5 flex justify-between items-center">
           <router-link :to="{ name: 'my-cart' }">
             <div class="flex gap-1.5 cursor-pointer group">
               <p
@@ -354,7 +393,7 @@ async function fetchAddress() {
                 Quay về giỏ hàng </span>
             </div>
           </router-link>
-          <button
+          <button @click.prevent="submit"
             class="text-white bg-[#2785d8] border border-[#2785d8] rounded-lg py-3 px-6 cursor-pointer hover:bg-[#2A6395] hover:border-[#2A6395]">
             Đặt hàng
           </button>
