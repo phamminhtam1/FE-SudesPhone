@@ -6,6 +6,7 @@ import axios from '@/plugins/axioscustomer'
 import { useAuth } from '@/composables/useAuth'
 import router from '@/router'
 import AccountCustomer from '@/components/layout/frontend/customer/AccountCustomer.vue'
+import ListOrderCustomer from '@/components/layout/frontend/customer/ListOrderCustomer.vue'
 import AddressCustomer from '@/components/layout/frontend/customer/AddressCustomer.vue'
 import { useProfileStore } from '@/stores/customerprofile'
 import { storeToRefs } from 'pinia'
@@ -20,6 +21,7 @@ onMounted(() => {
 const selectedButton = ref('account')
 const selectButton = (buttonType) => {
   selectedButton.value = buttonType
+  localStorage.setItem('profile_selected_button', buttonType)
 }
 
 const { logout: authLogout } = useAuth()
@@ -39,6 +41,11 @@ async function fetchAddresses() {
 }
 
 onMounted(async () => {
+  // Đọc trạng thái selectedButton từ localStorage
+  const savedButton = localStorage.getItem('profile_selected_button')
+  if (savedButton) {
+    selectedButton.value = savedButton
+  }
   const id = localStorage.getItem('customer_id')
   const token = localStorage.getItem('customer_token')
   if (!id || !token) {
@@ -202,43 +209,10 @@ async function logout() {
         </div>
 
         <!-- Orders -->
-        <div v-if="selectedButton === 'orders'" class="space-y-6">
-          <h2 class="text-2xl font-semibold text-gray-800">Đơn hàng của bạn</h2>
-          <div class="space-y-4">
-            <div class="border border-gray-200 rounded-lg p-4">
-              <div class="flex justify-between items-center mb-3">
-                <div>
-                  <p class="font-medium">Đơn hàng #DH001</p>
-                  <p class="text-sm text-gray-500">Đặt ngày: 15/12/2024</p>
-                </div>
-                <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Đã giao</span>
-              </div>
-              <div class="flex items-center gap-3">
-                <img src="/src/assets/logo.svg" alt="Product" class="w-16 h-16 object-cover rounded">
-                <div class="flex-1">
-                  <p class="font-medium">iPhone 15 Pro Max</p>
-                  <p class="text-sm text-gray-500">Số lượng: 1</p>
-                  <p class="text-red-500 font-medium">35.990.000đ</p>
-                </div>
-              </div>
-            </div>
-            <div class="border border-gray-200 rounded-lg p-4">
-              <div class="flex justify-between items-center mb-3">
-                <div>
-                  <p class="font-medium">Đơn hàng #DH002</p>
-                  <p class="text-sm text-gray-500">Đặt ngày: 10/12/2024</p>
-                </div>
-                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Đang giao</span>
-              </div>
-              <div class="flex items-center gap-3">
-                <img src="/src/assets/logo.svg" alt="Product" class="w-16 h-16 object-cover rounded">
-                <div class="flex-1">
-                  <p class="font-medium">AirPods Pro</p>
-                  <p class="text-sm text-gray-500">Số lượng: 1</p>
-                  <p class="text-red-500 font-medium">7.990.000đ</p>
-                </div>
-              </div>
-            </div>
+        <div v-if="selectedButton === 'orders'">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-5">Đơn hàng của bạn</h2>
+          <div>
+            <ListOrderCustomer />
           </div>
         </div>
 

@@ -25,6 +25,9 @@ const sale = ref('')
 const issale = ref(false)
 const shipping_fee = ref(40000)
 const discount = ref(0)
+const specific_address = ref('')
+const isSpecificAddressFocused = ref(false)
+
 
 onMounted(() => {
   if (phoneInputRef.value) {
@@ -114,7 +117,17 @@ async function submit() {
       phoneNumber = phoneInputRef.value.value;
     }
   }
-  const address_customer = selectedAddress.value ? `${selectedAddress.value.line}, ${selectedAddress.value.ward}, ${selectedAddress.value.region}, ${selectedAddress.value.city}` : ''
+  const provinceObj = provinces.value.find(p => p.id === selectedProvince.value)
+  const districtObj = districts.value.find(d => d.id === selectedDistrict.value)
+  const wardObj = wards.value.find(w => w.id === selectedWard.value)
+  const address_customer = selectedAddress.value
+    ? `${selectedAddress.value.line}, ${selectedAddress.value.ward}, ${selectedAddress.value.region}, ${selectedAddress.value.city}`
+    : [
+      note.value,
+      wardObj ? wardObj.name : '',
+      districtObj ? districtObj.name : '',
+      provinceObj ? provinceObj.name : ''
+    ].filter(Boolean).join(', ')
   const order_items = cartItems.value.map(item => ({
     prod_id: item.prod_id,
     qty: item.quantity,
@@ -276,6 +289,17 @@ async function submit() {
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
                 </span>
+              </div>
+              <div class="relative w-full">
+                <input type="text" v-model="specific_address" @focus="isSpecificAddressFocused = true"
+                  @blur="isSpecificAddressFocused = false" :disabled="!!selectedAddress" :class="[
+                    (!selectedAddress) ? 'border border-zinc-300 rounded-lg w-full py-1 pt-5 px-3 text-gray-700 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue-200 appearance-none'
+                      : 'border border-zinc-300 rounded-lg w-full py-1 pt-5 px-3 bg-[#EEEEEE] text-gray-700 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue-200 appearance-none'
+                  ]">
+                <label :class="[
+                  (note || isSpecificAddressFocused) ? 'absolute top-1 left-3 text-xs text-gray-400 pointer-events-none transition-all duration-200' : 'absolute top-3 left-3 text-xs text-gray-400 pointer-events-none transition-all duration-200'
+                ]">Địa chỉ cụ
+                  thể</label>
               </div>
               <div class="w-full relative">
                 <textarea v-model="note" @focus="isNoteFocused = true" @blur="isNoteFocused = false"

@@ -5,6 +5,7 @@ import { onMounted } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cart'
+import { useCategoryStore } from '@/stores/category';
 import { storeToRefs } from 'pinia'
 
 // Define component name to fix linter error
@@ -15,13 +16,13 @@ defineOptions({
 const { isAuthenticated, logout } = useAuth()
 const router = useRouter()
 
-const category_tree = ref([])
-const categorys = ref([])
 const isMobileMenuOpen = ref(false)
 const isAccountDropdownOpen = ref(false)
 
 const cartStore = useCartStore()
 const { count } = storeToRefs(cartStore)
+const categotyStore = useCategoryStore()
+const { category_tree, categorys } = storeToRefs(categotyStore)
 
 const handleLogout = () => {
   logout()

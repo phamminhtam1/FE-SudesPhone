@@ -166,11 +166,12 @@ async function goDelete(addre_id) {
     <div class="flex gap-5">
       <button v-if="isAdding || isEditting" @click.prevent="back"
         class="px-4 py-2 bg-black text-white rounded-lg hover:bg-black transition-colors cursor-pointer flex justify-center items-center">
-        <svg viewBox="0 0 32 32" width="24" height="24" version="1.1" xmlns="http://www.w3.org/2000/svg"
-          xmlns:xlink="http://www.w3.org/1999/xlink" fill="currentColor">
+        <svg fill="currentColor" height="20px" width="20px" version="1.1" id="Layer_1"
+          xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 472.615 472.615"
+          xml:space="preserve" stroke="currentColor">
           <path
-            d="M14.389 7.956v4.374l1.056 0.010c7.335 0.071 11.466 3.333 12.543 9.944-4.029-4.661-8.675-4.663-12.532-4.664h-1.067v4.337l-9.884-7.001 9.884-7zM15.456 5.893l-12.795 9.063 12.795 9.063v-5.332c5.121 0.002 9.869 0.26 13.884 7.42 0-4.547-0.751-14.706-13.884-14.833v-5.381z"
-            fill="currentColor"> </path>
+            d="M167.158,117.315l-0.001-77.375L0,193.619l167.157,153.679v-68.555c200.338,0.004,299.435,153.932,299.435,153.932 c3.951-19.967,6.023-40.609,6.023-61.736C472.615,196.295,341.8,117.315,167.158,117.315z">
+          </path>
         </svg>
         <span class="ml-2">Trở về</span>
       </button>
