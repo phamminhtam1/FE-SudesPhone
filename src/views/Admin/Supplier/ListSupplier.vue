@@ -1,7 +1,7 @@
 <script setup>
 import LeftMenu from '@/components/layout/backend/LeftMenu.vue';
 import HeaderAdmin from '@/components/layout/backend/HeaderAdmin.vue';
-import axios from '@/plugins/axion';
+import axiosAdmin from '@/plugins/axion';
 import { watch } from 'vue';
 import { ref, onMounted } from 'vue';
 import router from '@/router';
@@ -21,7 +21,7 @@ async function fetchSupplier() {
     if (keyword.value) {
       params.keyword = keyword.value
     }
-    const res = await axios.get('/api/supplier', { params })
+    const res = await axiosAdmin.get('/api/supplier', { params })
     suppliers.value = res.data.supplier
   } catch (err) {
     error.value = err.response?.data?.message
@@ -30,7 +30,7 @@ async function fetchSupplier() {
 
 async function updateStatusSupplier(id, newStatus) {
   try {
-    await axios.put(`/api/supplier/update-status/${id}`, {
+    await axiosAdmin.put(`/api/supplier/update-status/${id}`, {
       status: newStatus
     })
     await fetchSupplier()
@@ -52,7 +52,7 @@ async function deleteSupplier(id) {
   })
   if (result.isConfirmed) {
     try {
-      await axios.delete(`/api/supplier/delete/${id}`)
+      await axiosAdmin.delete(`/api/supplier/delete/${id}`)
       await fetchSupplier()
       Swal.fire('Đã xóa!', 'Vị trí này đã được xóa thành công.', 'success')
     } catch (err) {

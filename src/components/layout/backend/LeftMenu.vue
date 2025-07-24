@@ -209,6 +209,43 @@
           </li>
         </ul>
       </transition>
+      <div class="w-full py-3.5 cursor-pointer flex items-center hover:text-white" @click="toggleCustomer"
+        :class="{ 'bg-[#384153]': isOpenCustomer }">
+        <svg viewBox="0 0 1024 1024" class="icon ml-7" width="20px" height="18px" version="1.1"
+          xmlns="http://www.w3.org/2000/svg" fill="#ffffff" stroke="#ffffff">
+          <path
+            d="M670.5 471.7c-7.1-3.1-14.2-5.9-21.4-8.5 49.8-40.3 81.6-101.8 81.6-170.6 0-121-98.4-219.4-219.4-219.4s-219.4 98.4-219.4 219.4c0 68.9 31.9 130.5 81.7 170.7C219.4 519.6 109 667.8 109 841.3h73.1c0-181.5 147.7-329.1 329.1-329.1 45.3 0 89.1 9 130.2 26.7l29.1-67.2zM511.3 146.3c80.7 0 146.3 65.6 146.3 146.3S592 438.9 511.3 438.9 365 373.2 365 292.6s65.6-146.3 146.3-146.3zM612.5 636.5c0 10.2 5.6 19.5 14.6 24.2l128 67.6c4 2.1 8.4 3.2 12.8 3.2s8.8-1.1 12.8-3.2l128-67.6c9-4.8 14.6-14.1 14.6-24.2s-5.6-19.5-14.6-24.2l-128-67.7c-8-4.2-17.6-4.2-25.6 0l-128 67.7c-9 4.7-14.6 14-14.6 24.2z m155.4-36.6l69.3 36.6-69.3 36.6-69.3-36.6 69.3-36.6z"
+            fill="#ffffff"></path>
+          <path d="M767.9 763.4l-147-77.7-25.6 48.5 172.6 91.2 171.9-90.8-25.6-48.5z" fill="#ffffff"></path>
+          <path d="M767.9 851.4l-147-77.6-25.6 48.4 172.6 91.3 171.3-90.6-25.6-48.5z" fill="#ffffff"></path>
+        </svg>
+        <button class="cursor-pointer ml-2 flex items-center hover:-translate-y-0.5 transition duration-300">
+          QL Khách hàng
+          <svg viewBox="0 0 24 24" fill="none" class="ml-6.5 -mb-0.5 transform transition-transform duration-300"
+            :class="{ 'rotate-0': !isOpenCustomer, '-rotate-90': isOpenCustomer }" width="15px" height="15px"
+            xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M15.7071 4.29289C16.0976 4.68342 16.0976 5.31658 15.7071 5.70711L9.41421 12L15.7071 18.2929C16.0976 18.6834 16.0976 19.3166 15.7071 19.7071C15.3166 20.0976 14.6834 20.0976 14.2929 19.7071L7.29289 12.7071C7.10536 12.5196 7 12.2652 7 12C7 11.7348 7.10536 11.4804 7.29289 11.2929L14.2929 4.29289C14.6834 3.90237 15.3166 3.90237 15.7071 4.29289Z"
+              fill="#ffffff"></path>
+          </svg>
+        </button>
+      </div>
+      <transition>
+        <ul v-if="isOpenCustomer" class=" text-sm text-zinc-300 space-y-1 w-full bg-[#384153]">
+          <li>
+            <router-link to="/admin/customer"
+              class="block py-1 hover:text-white ml-17 hover:-translate-y-0.5 transition duration-300">
+              Danh sách khách hàng
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/admin/purchase/stock-receipt"
+              class="block py-1 hover:text-white ml-17 hover:-translate-y-0.5 transition duration-300">
+              QL đơn hàng
+            </router-link>
+          </li>
+        </ul>
+      </transition>
     </div>
   </div>
 </template>
@@ -221,6 +258,7 @@ const isOpenBrach = ref(false)
 const isOpenUser = ref(false)
 const isOpenCategory = ref(false)
 const isOpenPurchase = ref(false)
+const isOpenCustomer = ref(false)
 
 // Tự mở menu nếu vào đúng trang
 watch(() => route.path, (newPath) => {
@@ -239,6 +277,10 @@ watch(() => route.path, (newPath) => {
   isOpenPurchase.value = newPath.startsWith('/admin/purchase')
 }, { immediate: true })
 
+watch(() => route.path, (newPath) => {
+  isOpenCustomer.value = newPath.startsWith('/admin/purchase')
+}, { immediate: true })
+
 
 const toggleBrach = () => {
   isOpenBrach.value = !isOpenBrach.value
@@ -251,6 +293,9 @@ const toggleCategory = () => {
 }
 const togglePurchase = () => {
   isOpenPurchase.value = !isOpenPurchase.value
+}
+const toggleCustomer = () => {
+  isOpenCustomer.value = !isOpenCustomer.value
 }
 </script>
 <style></style>

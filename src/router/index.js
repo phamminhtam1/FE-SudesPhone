@@ -35,6 +35,8 @@ import FrontendLayout from '@/components/layout/frontend/FrontendLayout.vue'
 import CheckoutPage from '@/views/CheckoutPage.vue'
 import CheckoutDonePage from '@/views/CheckoutDonePage.vue'
 import OrderDetailPage from '@/views/OrderDetailPage.vue'
+import ListCustomer from '@/views/Admin/Customer/ListCustomer.vue'
+import CustomerDetail from '@/views/Admin/Customer/CustomerDetail.vue'
 
 // Branch routes
 const branchRoutes = [
@@ -201,6 +203,22 @@ const StockReceipt = [
   },
 ]
 
+const customerRouters = [
+  {
+    path: '/admin/customer',
+    name: 'customer',
+    component: ListCustomer,
+    meta: { requiresAuth: true, name_page: 'Danh sách khách hàng' },
+  },
+  {
+    path: '/admin/customer/detail/:id',
+    name: 'customer-detail',
+    component: CustomerDetail,
+    props: true,
+    meta: { requiresAuth: true, name_page: 'Chi tiết khách hàng' },
+  },
+]
+
 const FERouters = [
   {
     path: '/',
@@ -288,6 +306,7 @@ const router = createRouter({
     ...productRouters,
     ...supplierRouters,
     ...StockReceipt,
+    ...customerRouters,
     ...FERouters,
   ],
   scrollBehavior(to, from, savedPosition) {
