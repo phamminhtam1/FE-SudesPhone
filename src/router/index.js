@@ -37,6 +37,7 @@ import CheckoutDonePage from '@/views/CheckoutDonePage.vue'
 import OrderDetailPage from '@/views/OrderDetailPage.vue'
 import ListCustomer from '@/views/Admin/Customer/ListCustomer.vue'
 import CustomerDetail from '@/views/Admin/Customer/CustomerDetail.vue'
+import OrderManagerment from '@/views/Admin/Customer/OrderManagerment.vue'
 
 // Branch routes
 const branchRoutes = [
@@ -216,6 +217,12 @@ const customerRouters = [
     component: CustomerDetail,
     props: true,
     meta: { requiresAuth: true, name_page: 'Chi tiết khách hàng' },
+  },
+  {
+    path: '/admin/customer/order-management',
+    name: 'order-management',
+    component: OrderManagerment,
+    meta: { requiresAuth: true, name_page: 'Quản lý đơn hàng' },
   },
 ]
 

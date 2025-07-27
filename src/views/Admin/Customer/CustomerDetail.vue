@@ -4,6 +4,11 @@ import HeaderAdmin from '@/components/layout/backend/HeaderAdmin.vue'
 import axiosAdmin from '@/plugins/axion'
 import { onMounted } from 'vue'
 import { ref } from 'vue'
+import { useOrderDetailStore } from '@/stores/orderdetailAdmin'
+import { storeToRefs } from 'pinia';
+const orderDetailStore = useOrderDetailStore()
+const { profile,products } = storeToRefs(orderDetailStore)
+
 
 const props = defineProps({
   id: {
@@ -14,6 +19,16 @@ const props = defineProps({
 
 const customer = ref({ order: [] })
 const orders = ref([])
+const currentOrderId = ref(null)
+
+const OrderDetail = (orderId) => {
+  if (currentOrderId.value === orderId) {
+    currentOrderId.value = null
+  } else {
+    currentOrderId.value = orderId
+    orderDetailStore.fetchOrderDetail(orderId) // Chỉ gọi khi có orderId
+  }
+}
 
 async function getCustomerDetail(cust_id) {
   const res = await axiosAdmin.get(`/api/customer/${cust_id}`)
@@ -82,7 +97,10 @@ const formatPrice = (number) => {
   return Number(number).toLocaleString('vi-VN') + '₫'
 }
 
-onMounted(() => getCustomerDetail(props.id))
+onMounted(() => {
+  getCustomerDetail(props.id)
+  // Đã xoá dòng gọi fetchOrderDetail ở đây để tránh gọi với null
+})
 </script>
 
 <template>
@@ -456,6 +474,7 @@ onMounted(() => getCustomerDetail(props.id))
           </div>
           <div class="col-span-1 font-medium">
             <button
+              @click.prevent="OrderDetail(order.order_id)"
               class="flex items-center gap-2 border border-zinc-300 rounded-lg px-3 py-1 cursor-pointer hover:bg-zinc-100 transition-all duration-100"
             >
               <svg
@@ -484,6 +503,86 @@ onMounted(() => getCustomerDetail(props.id))
               </svg>
               <span>Xem</span>
             </button>
+          </div>
+          <div v-if="currentOrderId === order.order_id"
+            class="col-span-8 p-5 mt-2 border border-zinc-300 bg-gray-50 rounded-lg shadow-xl">
+            <div class="flex justify-start items-center gap-3">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-package h-4 w-4"
+                data-lov-id="src/components/OrderDetails.tsx:17:10"
+                data-lov-name="Package"
+                data-component-path="src/components/OrderDetails.tsx"
+                data-component-line="17"
+                data-component-file="OrderDetails.tsx"
+                data-component-name="Package"
+                data-component-content="%7B%22className%22%3A%22h-4%20w-4%22%7D">
+                <path
+                  d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"
+                ></path>
+                <path d="M12 22V12"></path>
+                <path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path>
+                <path d="m7.5 4.27 9 5.15"></path>
+              </svg>
+              <span class="text-[17px] font-medium">Chi tiết đơn hàng #DH0{{ order.order_id }}</span>
+            </div>
+            <div
+      class="mt-5 grid-cols-11 flex hover:bg-[#F9FAFB] p-3 text-zinc-500 text-[14px] font-medium gap-3 border-b border-zinc-300 mx-4">
+      <div class="col-span-1 w-1/6"></div>
+      <div class="col-span-3 w-5/6">
+        Sản phẩm
+      </div>
+      <div class="col-span-1 w-2/6 flex justify-center">
+        Đơn giá
+      </div>
+      <div class="col-span-1 w-1/6 flex justify-center">
+        Số lượng
+      </div>
+      <div class="col-span-1 w-2/6 flex justify-end">
+        Tổng
+      </div>
+    </div>
+    <div v-for="product in products" :key="product.id"
+      class="pt-5 pb-5 grid-cols-11 flex items-center hover:bg-[#F9FAFB] p-3 text-[14px] gap-3 border-b border-zinc-300 mx-4">
+      <div class="col-span-1 w-1/6">
+        <img class="w-12 h-12" :src="product.image" alt="">
+      </div>
+      <div class="col-span-3 w-5/6 font-medium">
+        {{ product.name }} - Chính hãng VN
+        <p class="text-zinc-600 font-normal">
+          {{ product.color }}
+        </p>
+      </div>
+      <div class="col-span-1 w-2/6 flex justify-center">
+        {{ formatPrice(product.price) }}
+      </div>
+      <div class="col-span-1 w-1/6 flex justify-center">
+        {{ product.quantity }}
+      </div>
+      <div class="col-span-1 w-2/6 flex justify-end">
+        {{ formatPrice(product.total) }}
+      </div>
+    </div>
+    <div class="flex justify-end">
+      <div class="flex justify-between w-4/9 text-[15px] border-b border-b-zinc-300 pt-5 pb-2 gap-3">
+        <span class="text-zinc-600">Phí vận chuyển</span>
+        <span>{{ formatPrice(profile.shipping_fee) }} (Giao hàng tận nơi)</span>
+      </div>
+    </div>
+    <div class="flex justify-end">
+      <div class="flex justify-between w-4/9 text-[20px] pt-5 pb-2 gap-3">
+        <span class=" font-medium">Tổng tiền</span>
+        <span class=" font-medium text-red-600">{{ formatPrice(profile.total_amount) }}</span>
+      </div>
+    </div>
           </div>
         </div>
       </div>

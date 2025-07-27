@@ -239,7 +239,7 @@
             </router-link>
           </li>
           <li>
-            <router-link to="/admin/purchase/stock-receipt"
+            <router-link to="/admin/customer/order-management"
               class="block py-1 hover:text-white ml-17 hover:-translate-y-0.5 transition duration-300">
               QL đơn hàng
             </router-link>
@@ -278,7 +278,7 @@ watch(() => route.path, (newPath) => {
 }, { immediate: true })
 
 watch(() => route.path, (newPath) => {
-  isOpenCustomer.value = newPath.startsWith('/admin/purchase')
+  isOpenCustomer.value = newPath.startsWith('/admin/customer')
 }, { immediate: true })
 
 
