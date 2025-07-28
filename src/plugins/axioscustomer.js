@@ -31,7 +31,19 @@ axiosCustomer.interceptors.response.use(
     // If the error is 402 and we haven't retried yet
     if (error.response?.status === 402 && !originalRequest._retry) {
       originalRequest._retry = true
-      router.push({ name: 'profile-customer' })
+      // Check if user has token - if not, redirect to login
+      const token = localStorage.getItem('customer_token')
+      if (!token) {
+        // If no token, redirect to login page
+        if (router.currentRoute.value.name !== 'login-customer') {
+          router.push({ name: 'login-customer' })
+        }
+      } else {
+        // If has token but still getting 402, redirect to profile
+        if (router.currentRoute.value.name !== 'profile-customer') {
+          router.push({ name: 'profile-customer' })
+        }
+      }
     }
     return Promise.reject(error)
   },

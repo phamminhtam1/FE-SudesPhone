@@ -385,13 +385,18 @@ async function addCart() {
             </button>
           </div>
         </div>
-        <div @click.prevent="addCart" class="grid grid-cols-10 mt-8 gap-5 p">
-          <div
+        <div class="grid grid-cols-10 mt-8 gap-5 p">
+          <div v-if="stock_qty > 0"
             class="col-span-7 flex flex-col justify-center items-center bg-black text-white rounded-lg p-2 font-medium hover:bg-red-600 cursor-pointer transition duration-200">
             <h1 class="text-xl">MUA NGAY</h1>
             <h2>Giao hàng tận nơi hoặc nhận tại cửa hàng</h2>
           </div>
-          <div
+          <div v-else
+            class="col-span-7 flex flex-col justify-center items-center bg-black text-white rounded-lg p-2 font-medium hover:bg-red-600 cursor-pointer transition duration-200">
+            <h1 class="text-xl">HẾT HÀNG</h1>
+            <h2>Vui lòng chọn sản phẩm khác</h2>
+          </div>
+          <div v-if="stock_qty > 0" @click.prevent="addCart"
             class="col-span-3 flex flex-col justify-center items-center border-red-500 border rounded-lg text-red-500 hover:bg-black hover:border-black hover:text-white cursor-pointer transition duration-200">
             <svg viewBox="0 0 24 24" fill="none" width="30px" height="30px" xmlns="http://www.w3.org/2000/svg"
               stroke="#ec2222">

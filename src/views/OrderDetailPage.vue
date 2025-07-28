@@ -35,8 +35,9 @@ const orderStatusVN = {
   cancelled: 'Đã hủy',
 }
 const paymentStatusVN = {
-  unpaid: 'Chưa thanh toán',
-  paid: 'Đã thanh toán',
+  pending: 'Chờ thanh toán',
+  success: 'Đã thanh toán',
+  failed: 'Đã hủy thanh toán',
   refunded: 'Đã hoàn tiền',
 }
 const formatPrice = (number) => {
@@ -76,7 +77,7 @@ onMounted(async () => {
     </div>
     <div class="flex justify-start gap-5 mt-5">
       <span class="text-[14px] text-zinc-500 flex gap-1">Trạng thái thanh toán: <p
-          class="text-[15px] text-red-500 font-medium">{{ paymentStatusVN[profile.payment_status] }}</p></span>
+          class="text-[15px] text-red-500 font-medium">{{ paymentStatusVN[profile.payment?.pay_status] }}</p></span>
       <span class="text-[14px] text-zinc-500 flex gap-1">Trạng thái vận chuyển: <p
           class="text-[15px] text-red-500 font-medium">{{ orderStatusVN[profile.order_status] }}</p></span>
     </div>

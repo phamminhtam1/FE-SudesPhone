@@ -34,6 +34,7 @@ import CartPage from '@/views/CartPage.vue'
 import FrontendLayout from '@/components/layout/frontend/FrontendLayout.vue'
 import CheckoutPage from '@/views/CheckoutPage.vue'
 import CheckoutDonePage from '@/views/CheckoutDonePage.vue'
+import ThankYouPage from '@/views/ThankYouPage.vue'
 import OrderDetailPage from '@/views/OrderDetailPage.vue'
 import ListCustomer from '@/views/Admin/Customer/ListCustomer.vue'
 import CustomerDetail from '@/views/Admin/Customer/CustomerDetail.vue'
@@ -276,6 +277,11 @@ const FERouters = [
   },
   {
     path: '/checkout/thankyou',
+    name: 'thank-you',
+    component: ThankYouPage,
+  },
+  {
+    path: '/checkout/thank-you',
     name: 'checkoutdone',
     component: CheckoutDonePage,
   },

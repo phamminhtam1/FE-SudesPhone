@@ -14,8 +14,9 @@ const orderStatusVN = {
   cancelled: 'Đã hủy',
 }
 const paymentStatusVN = {
-  unpaid: 'Chưa thanh toán',
-  paid: 'Đã thanh toán',
+  pending: 'Chờ thanh toán',
+  success: 'Đã thanh toán',
+  failed: 'Đã hủy thanh toán',
   refunded: 'Đã hoàn tiền',
 }
 
@@ -31,8 +32,9 @@ function getOrderStatusClass(status) {
 }
 function getPaymentStatusClass(status) {
   switch (status) {
-    case 'unpaid': return 'bg-red-600 text-white';
-    case 'paid': return 'bg-green-600 text-white';
+    case 'pending': return 'bg-yellow-500 text-white';
+    case 'success': return 'bg-green-600 text-white';
+    case 'failed': return 'bg-red-600 text-white';
     case 'refunded': return 'bg-orange-500 text-white';
     default: return 'bg-gray-500 text-white';
   }
@@ -76,8 +78,8 @@ onMounted(() => {
             {{ orderStatusVN[order.order_status] || order.order_status }}
           </span>
           <span class="px-3 py-0.5 rounded-full text-sm font-medium"
-            :class="getPaymentStatusClass(order.payment_status)">
-            {{ paymentStatusVN[order.payment_status] || order.payment_status }}
+            :class="getPaymentStatusClass(order.payment?.pay_status)">
+            {{ paymentStatusVN[order.payment?.pay_status] || order.payment?.pay_status }}
           </span>
         </div>
       </div>

@@ -6,7 +6,7 @@ import { useAllOrderStore } from '@/stores/allorder';
 import { onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import Swal from 'sweetalert2';
-// import axios from '@/plugins/axion'; // Uncomment khi cần gọi API
+import axiosAdmin from '@/plugins/axion';
 const allOrderStore = useAllOrderStore()
 const { orders, total_profit, total_order, total_order_waiting, total_order_completed } = storeToRefs(allOrderStore)
 
@@ -59,8 +59,8 @@ const formatDate = (dateString) => {
 
 const orderStatusVN = {
   pending: 'Chờ xử lý',
-  paid: 'Đã thanh toán',
-  shipped: 'Đã giao hàng',
+  paid: 'Đã xử lý',
+  shipped: 'Đã giao vận',
   completed: 'Hoàn thành',
   cancelled: 'Đã hủy',
 }
@@ -237,10 +237,9 @@ const openOrderDetail = (order) => {
 const openUpdateStatusPopup = (order) => {
   const statusOptions = [
     { value: 'pending', label: 'Chờ xác nhận' },
-    { value: 'confirmed', label: 'Đã xác nhận' },
-    { value: 'processing', label: 'Đang xử lý' },
+    { value: 'paid', label: 'Đã xác nhận' },
     { value: 'shipped', label: 'Đã giao vận' },
-    { value: 'delivered', label: 'Đã giao hàng' },
+    { value: 'completed', label: 'Đã giao hàng' },
     { value: 'cancelled', label: 'Đã hủy' }
   ]
 
@@ -312,10 +311,9 @@ const openUpdateStatusPopup = (order) => {
 // Hàm cập nhật trạng thái đơn hàng (sẽ gọi API sau)
 const updateOrderStatus = async (orderId, newStatus) => {
   try {
-    // TODO: Gọi API để cập nhật trạng thái
-    // const response = await axios.put(`/api/order/update-status/${orderId}`, {
-    //   order_status: newStatus
-    // })
+      await axiosAdmin.put(`/api/order/change-status/${orderId}`, {
+      order_status: newStatus
+    })
 
     // Tạm thời hiển thị thông báo thành công
     Swal.fire({
@@ -329,13 +327,15 @@ const updateOrderStatus = async (orderId, newStatus) => {
     await allOrderStore.fetchAllOrder()
     await allOrderStore.fetchOrderProfit()
 
-  } catch {
+  } catch (error) {
+    const errorMessage = error?.response?.data?.message || 'Có lỗi xảy ra khi cập nhật trạng thái đơn hàng';
+
     Swal.fire({
       icon: 'error',
       title: 'Thất bại',
-      text: 'Có lỗi xảy ra khi cập nhật trạng thái đơn hàng',
+      text: errorMessage,
       confirmButtonText: 'Đóng',
-    })
+    });
   }
 }
 
@@ -418,16 +418,16 @@ onMounted(() => {
         </div>
          <div class="mt-5">
            <table class="w-full border border-zinc-300 rounded-lg overflow-hidden">
-             <thead class="bg-gray-100">
+             <thead class="bg-[#384153]">
                <tr>
-                 <th class="px-4 py-3 text-left font-medium text-zinc-500 text-[14px]">Mã đơn hàng</th>
-                 <th class="px-4 py-3 text-left font-medium text-zinc-500 text-[14px]">Khách hàng</th>
-                 <th class="px-4 py-3 text-left font-medium text-zinc-500 text-[14px]">Sản phẩm</th>
-                 <th class="px-4 py-3 text-left font-medium text-zinc-500 text-[14px]">Tổng tiền</th>
-                 <th class="px-3 py-3 text-left font-medium text-zinc-500 text-[14px]">TT đơn hàng</th>
-                 <th class="px-3 py-3 text-left font-medium text-zinc-500 text-[14px]">TT thanh toán</th>
-                 <th class="px-4 py-3 text-left font-medium text-zinc-500 text-[14px]">Ngày đặt</th>
-                 <th class="px-4 py-3 text-left font-medium text-zinc-500 text-[14px] flex justify-center items-center">Thao tác</th>
+                 <th class="px-4 py-3 text-left font-medium text-white text-[14px]">Mã đơn hàng</th>
+                 <th class="px-4 py-3 text-left font-medium text-white text-[14px]">Khách hàng</th>
+                 <th class="px-4 py-3 text-left font-medium text-white text-[14px]">Sản phẩm</th>
+                 <th class="px-4 py-3 text-left font-medium text-white text-[14px]">Tổng tiền</th>
+                 <th class="px-3 py-3 text-left font-medium text-white text-[14px]">TT đơn hàng</th>
+                 <th class="px-3 py-3 text-left font-medium text-white text-[14px]">TT thanh toán</th>
+                 <th class="px-4 py-3 text-left font-medium text-white text-[14px]">Ngày đặt</th>
+                 <th class="px-4 py-3 text-left font-medium text-white text-[14px] flex justify-center items-center">Thao tác</th>
                </tr>
              </thead>
              <tbody>
