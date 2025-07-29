@@ -96,7 +96,7 @@ const formatPrice = (number) => {
         <div class="col-span-2 ">
           <div class="bg-white rounded-lg">
             <div class="mx-5 py-1.5">
-              <span class="font-medium">Đơn hàng #1055 (4)</span>
+              <span class="font-medium">Đơn hàng #{{ order_id }} (4)</span>
             </div>
             <div class="px-5 py-3 flex justify-between gap-3 items-center border-t border-zinc-300"
               v-for="item in cartItems" :key="item.id">

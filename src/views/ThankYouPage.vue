@@ -252,12 +252,13 @@ const getPaymentMethodText = (method) => {
 
       <!-- Actions -->
       <div class="mt-8 flex flex-col sm:flex-row gap-4">
-        <button
-          @click="router.push({ name: 'home' })"
+        <router-link :to="{ name: 'home' }">
+          <button
           class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors"
         >
           Tiếp tục mua sắm
         </button>
+        </router-link>
 
         <button
           @click="router.push({ name: 'profile' })"

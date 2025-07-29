@@ -8,7 +8,7 @@ const { order_list } = storeToRefs(orderStore)
 
 const orderStatusVN = {
   pending: 'Chờ xử lý',
-  paid: 'Đã thanh toán',
+  paid: 'Đã xử lý',
   shipped: 'Đã giao hàng',
   completed: 'Hoàn thành',
   cancelled: 'Đã hủy',
@@ -74,10 +74,10 @@ onMounted(() => {
           <p class="text-sm text-gray-500">Đặt ngày: {{ formatDateTime(order.created_at) }}</p>
         </div>
         <div class="flex flex-col justify-center items-end gap-1">
-          <span class="px-3 py-0.5 rounded-full text-sm font-medium" :class="getOrderStatusClass(order.order_status)">
+          <span class="px-3 py-0.5 rounded-full text-xs font-medium" :class="getOrderStatusClass(order.order_status)">
             {{ orderStatusVN[order.order_status] || order.order_status }}
           </span>
-          <span class="px-3 py-0.5 rounded-full text-sm font-medium"
+          <span class="px-3 py-0.5 rounded-full text-xs font-medium"
             :class="getPaymentStatusClass(order.payment?.pay_status)">
             {{ paymentStatusVN[order.payment?.pay_status] || order.payment?.pay_status }}
           </span>
@@ -107,7 +107,7 @@ onMounted(() => {
       </div>
       <div class="flex justify-end mt-4">
         <router-link :to="`/order/${order.order_id}`"
-          class="px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+          class="px-4 py-1 bg-red-700 text-white rounded-lg hover:bg-black transition">
           Xem chi tiết
         </router-link>
       </div>

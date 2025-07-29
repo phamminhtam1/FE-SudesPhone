@@ -90,7 +90,7 @@ onMounted(async () => {
       </div>
       <div class=" col-span-1 min-w-1/3 flex flex-col gap-2">
         <span class="uppercase font-medium">THANH TOÁN</span>
-        <span class="text-[14px] text-zinc-500">Thanh toán khi giao hàng (COD)</span>
+        <span class="text-[14px] text-zinc-500">{{profile.payment?.method}}</span>
       </div>
       <div class=" col-span-1 min-w-1/3 flex flex-col gap-2">
         <span class="uppercase font-medium">GHI CHÚ</span>

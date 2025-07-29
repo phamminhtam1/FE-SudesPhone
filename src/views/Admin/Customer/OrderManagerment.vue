@@ -65,8 +65,9 @@ const orderStatusVN = {
   cancelled: 'Đã hủy',
 }
 const paymentStatusVN = {
-  unpaid: 'Chưa thanh toán',
-  paid: 'Đã thanh toán',
+  pending: 'Chờ thanh toán',
+  success: 'Đã thanh toán',
+  failed: 'Đã hủy thanh toán',
   refunded: 'Đã hoàn tiền',
 }
 // Hàm trả về class màu cho order_status
@@ -89,14 +90,11 @@ const orderStatusClass = (status) => {
 // Hàm trả về class màu cho payment_status
 const paymentStatusClass = (status) => {
   switch (status) {
-    case 'unpaid':
-      return 'bg-red-200 text-red-800'
-    case 'paid':
-      return 'bg-green-200 text-green-800'
-    case 'refunded':
-      return 'bg-gray-200 text-gray-800'
-    default:
-      return 'bg-gray-300 text-gray-900'
+    case 'pending': return 'bg-yellow-500 text-white';
+    case 'success': return 'bg-green-600 text-white';
+    case 'failed': return 'bg-red-600 text-white';
+    case 'refunded': return 'bg-orange-500 text-white';
+    default: return 'bg-gray-500 text-white';
   }
 }
 
@@ -125,8 +123,8 @@ const openOrderDetail = (order) => {
             </div>
             <div class="flex justify-between">
               <span class="text-gray-600">Thanh toán:</span>
-              <span class="px-2 rounded-xl text-xs ${paymentStatusClass(order.payment_status)}">
-                ${paymentStatusVN[order.payment_status]}
+              <span class="px-2 rounded-xl text-xs ${paymentStatusClass(order.payment?.pay_status)}">
+                ${paymentStatusVN[order.payment?.pay_status]}
               </span>
             </div>
           </div>
@@ -238,8 +236,8 @@ const openUpdateStatusPopup = (order) => {
   const statusOptions = [
     { value: 'pending', label: 'Chờ xác nhận' },
     { value: 'paid', label: 'Đã xác nhận' },
-    { value: 'shipped', label: 'Đã giao vận' },
-    { value: 'completed', label: 'Đã giao hàng' },
+    { value: 'shipped', label: 'Đang giao hàng' },
+    { value: 'completed', label: 'Giao hàng thành công' },
     { value: 'cancelled', label: 'Đã hủy' }
   ]
 
@@ -424,6 +422,7 @@ onMounted(() => {
                  <th class="px-4 py-3 text-left font-medium text-white text-[14px]">Khách hàng</th>
                  <th class="px-4 py-3 text-left font-medium text-white text-[14px]">Sản phẩm</th>
                  <th class="px-4 py-3 text-left font-medium text-white text-[14px]">Tổng tiền</th>
+                 <th class="px-4 py-3 text-left font-medium text-white text-[14px]">Hình thức</th>
                  <th class="px-3 py-3 text-left font-medium text-white text-[14px]">TT đơn hàng</th>
                  <th class="px-3 py-3 text-left font-medium text-white text-[14px]">TT thanh toán</th>
                  <th class="px-4 py-3 text-left font-medium text-white text-[14px]">Ngày đặt</th>
@@ -451,14 +450,19 @@ onMounted(() => {
                  <td class="px-4 py-3">
                    <span class="font-medium text-[14px]">{{ formatPrice(order.total_amount) }}</span>
                  </td>
+                 <td class="px-4 py-3">
+                   <div class="flex items-center justify-center">
+                    <span class=" font-medium text-[14px]">{{ order.payment?.method }}</span>
+                   </div>
+                 </td>
                  <td class="px-3 py-3">
                    <span :class="orderStatusClass(order.order_status) + ' px-2 py-1 rounded-xl text-xs font-medium'">
                      {{orderStatusVN[order.order_status]}}
                    </span>
                  </td>
                  <td class="px-3 py-3">
-                   <span :class="paymentStatusClass(order.payment_status) + ' px-2 py-1 rounded-xl text-xs font-medium'">
-                     {{paymentStatusVN[order.payment_status]}}
+                   <span :class="paymentStatusClass(order.payment?.pay_status) + ' px-2 py-1 rounded-xl text-xs font-medium'">
+                     {{paymentStatusVN[order.payment?.pay_status]}}
                    </span>
                  </td>
                  <td class="px-4 py-3">
