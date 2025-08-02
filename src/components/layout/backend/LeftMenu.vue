@@ -41,7 +41,7 @@
         </svg>
         <button class="cursor-pointer ml-2 flex items-center hover:-translate-y-0.5 transition duration-300">
           QL chi nhánh
-          <svg viewBox="0 0 24 24" fill="none" class="ml-10 -mb-0.5 transform transition-transform duration-300"
+          <svg viewBox="0 0 24 24" fill="none" class="ml-10  transform transition-transform duration-300"
             :class="{ 'rotate-0': !isOpenBrach, '-rotate-90': isOpenBrach }" width="15px" height="15px"
             xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -85,7 +85,7 @@
         </svg>
         <button class="cursor-pointer ml-2 flex items-center hover:-translate-y-0.5 transition duration-300">
           QL nhân sự
-          <svg viewBox="0 0 24 24" fill="none" class="ml-13 -mb-0.5 transform transition-transform duration-300"
+          <svg viewBox="0 0 24 24" fill="none" class="ml-13  transform transition-transform duration-300"
             :class="{ 'rotate-0': !isOpenUser, '-rotate-90': isOpenUser }" width="15px" height="15px"
             xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -131,7 +131,7 @@
         </svg>
         <button class="cursor-pointer ml-2 flex items-center hover:-translate-y-0.5 transition duration-300">
           QL sản phẩm
-          <svg viewBox="0 0 24 24" fill="none" class="ml-10 -mb-0.5 transform transition-transform duration-300"
+          <svg viewBox="0 0 24 24" fill="none" class="ml-10  transform transition-transform duration-300"
             :class="{ 'rotate-0': !isOpenCategory, '-rotate-90': isOpenCategory }" width="15px" height="15px"
             xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -178,7 +178,7 @@
         </svg>
         <button class="cursor-pointer ml-2 flex items-center hover:-translate-y-0.5 transition duration-300">
           QL kho
-          <svg viewBox="0 0 24 24" fill="none" class="ml-20 -mb-0.5 transform transition-transform duration-300"
+          <svg viewBox="0 0 24 24" fill="none" class="ml-20  transform transition-transform duration-300"
             :class="{ 'rotate-0': !isOpenPurchase, '-rotate-90': isOpenPurchase }" width="15px" height="15px"
             xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -221,7 +221,7 @@
         </svg>
         <button class="cursor-pointer ml-2 flex items-center hover:-translate-y-0.5 transition duration-300">
           QL Khách hàng
-          <svg viewBox="0 0 24 24" fill="none" class="ml-6.5 -mb-0.5 transform transition-transform duration-300"
+          <svg viewBox="0 0 24 24" fill="none" class="ml-6.5  transform transition-transform duration-300"
             :class="{ 'rotate-0': !isOpenCustomer, '-rotate-90': isOpenCustomer }" width="15px" height="15px"
             xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -246,6 +246,51 @@
           </li>
         </ul>
       </transition>
+
+      <!-- QL Blog -->
+      <div class="w-full py-3.5 cursor-pointer flex items-center hover:text-white" @click="toggleBlog"
+        :class="{ 'bg-[#384153]': isOpenBlog }">
+       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class=" ml-7" data-lov-id="src/components/AppSidebar.tsx:75:22"
+            data-lov-name="item.icon" data-component-path="src/components/AppSidebar.tsx" data-component-line="75"
+            data-component-file="AppSidebar.tsx" data-component-name="item.icon"
+            data-component-content="%7B%22className%22%3A%22w-5%20h-5%20min-w-5%22%7D">
+            <path
+              d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2">
+            </path>
+            <path d="M18 14h-8"></path>
+            <path d="M15 18h-5"></path>
+            <path d="M10 6h8v4h-8V6Z"></path>
+          </svg>
+        <button class="cursor-pointer ml-2 flex items-center hover:-translate-y-0.5 transition duration-300">
+          QL Bài viết
+          <svg viewBox="0 0 24 24" fill="none" class="ml-14  transform transition-transform duration-300"
+            :class="{ 'rotate-0': !isOpenBlog, '-rotate-90': isOpenBlog }" width="15px" height="15px"
+            xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M15.7071 4.29289C16.0976 4.68342 16.0976 5.31658 15.7071 5.70711L9.41421 12L15.7071 18.2929C16.0976 18.6834 16.0976 19.3166 15.7071 19.7071C15.3166 20.0976 14.6834 20.0976 14.2929 19.7071L7.29289 12.7071C7.10536 12.5196 7 12.2652 7 12C7 11.7348 7.10536 11.4804 7.29289 11.2929L14.2929 4.29289C14.6834 3.90237 15.3166 3.90237 15.7071 4.29289Z"
+              fill="#ffffff"></path>
+          </svg>
+
+        </button>
+      </div>
+      <transition>
+        <ul v-if="isOpenBlog" class=" text-sm text-zinc-300 space-y-1 w-full bg-[#384153]">
+          <li>
+            <router-link :to="{name: 'blog'}"
+              class="block py-1 hover:text-white ml-17 hover:-translate-y-0.5 transition duration-300">
+              Danh sách bài viết
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/admin/customer/order-management"
+              class="block py-1 hover:text-white ml-17 hover:-translate-y-0.5 transition duration-300">
+              QL bài viết
+            </router-link>
+          </li>
+        </ul>
+      </transition>
     </div>
   </div>
 </template>
@@ -259,6 +304,7 @@ const isOpenUser = ref(false)
 const isOpenCategory = ref(false)
 const isOpenPurchase = ref(false)
 const isOpenCustomer = ref(false)
+const isOpenBlog = ref(false)
 
 // Tự mở menu nếu vào đúng trang
 watch(() => route.path, (newPath) => {
@@ -281,6 +327,10 @@ watch(() => route.path, (newPath) => {
   isOpenCustomer.value = newPath.startsWith('/admin/customer')
 }, { immediate: true })
 
+watch(() => route.path, (newPath) => {
+  isOpenBlog.value = newPath.startsWith('/admin/blog')
+}, { immediate: true })
+
 
 const toggleBrach = () => {
   isOpenBrach.value = !isOpenBrach.value
@@ -296,6 +346,9 @@ const togglePurchase = () => {
 }
 const toggleCustomer = () => {
   isOpenCustomer.value = !isOpenCustomer.value
+}
+const toggleBlog = () => {
+  isOpenBlog.value = !isOpenBlog.value
 }
 </script>
 <style></style>

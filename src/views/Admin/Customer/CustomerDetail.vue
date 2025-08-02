@@ -59,9 +59,10 @@ const orderStatusVN = {
   cancelled: 'Đã hủy',
 }
 const paymentStatusVN = {
-  unpaid: 'Chưa thanh toán',
-  paid: 'Đã thanh toán',
-  refunded: 'Đã hoàn tiền',
+  pending: 'Chờ thanh toán',
+  success: 'Đã thanh toán',
+  failed: 'Thất bại',
+  refund: 'Đã hoàn tiền',
 }
 // Hàm trả về class màu cho order_status
 const orderStatusClass = (status) => {
@@ -83,11 +84,11 @@ const orderStatusClass = (status) => {
 // Hàm trả về class màu cho payment_status
 const paymentStatusClass = (status) => {
   switch (status) {
-    case 'unpaid':
+    case 'pendding':
       return 'bg-red-200 text-red-800'
-    case 'paid':
+    case 'success':
       return 'bg-green-200 text-green-800'
-    case 'refunded':
+    case 'failed':
       return 'bg-gray-200 text-gray-800'
     default:
       return 'bg-gray-300 text-gray-900'
@@ -436,43 +437,47 @@ onMounted(() => {
             >Danh sách đơn hàng ({{ customer.order.length }})
           </span>
         </div>
-        <div class="grid grid-cols-8 mt-5 bg-blue-50 rounded-lg p-3">
+        <div class="grid grid-cols-9 mt-5 bg-blue-50 rounded-lg p-3">
           <div class="col-span-1 font-medium">Mã đơn</div>
           <div class="col-span-1 font-medium">Chi nhánh</div>
+          <div class="col-span-1 font-medium">Hình thức</div>
           <div class="col-span-1 font-medium">Trạng thái</div>
           <div class="col-span-1 font-medium">Thanh toán</div>
           <div class="col-span-1 font-medium">Tổng tiền</div>
           <div class="col-span-1 font-medium">Ngày đặt</div>
           <div class="col-span-1 font-medium">Địa chỉ</div>
-          <div class="col-span-1 font-medium">Hành động</div>
+          <div class="col-span-1 font-medium flex justify-center">Hành động</div>
         </div>
         <div
-          class="grid grid-cols-8 mt-5 border border-blue-100 rounded-lg p-3 items-center hover:bg-blue-50 transition-all duration-100"
+          class="grid grid-cols-9 mt-5 border border-blue-100 rounded-lg p-3 items-center hover:bg-blue-50 transition-all duration-100"
           v-for="order in orders"
           :key="order.order_id"
         >
           <div class="col-span-1 font-medium">#DH0{{ order.order_id }}</div>
           <div class="col-span-1 font-medium">CN1</div>
+          <div class="col-span-1 font-medium">
+            {{ order.payment?.method }}
+          </div>
           <div class="col-span-1 font-medium text-sm">
             <span :class="orderStatusClass(order.order_status) + ' px-2 rounded-xl'">
               {{ orderStatusVN[order.order_status] }}
             </span>
           </div>
           <div class="col-span-1 font-medium text-sm">
-            <span :class="paymentStatusClass(order.payment_status) + ' px-2 rounded-xl'">
-              {{ paymentStatusVN[order.payment_status] }}
+            <span :class="paymentStatusClass(order.payment?.pay_status) + ' px-2 rounded-xl'">
+              {{ paymentStatusVN[order.payment?.pay_status] }}
             </span>
           </div>
           <div class="col-span-1 font-medium text-green-600">
             {{ formatPrice(order.total_amount) }}
           </div>
-          <div class="col-span-1 font-medium text-zinc-500">
+          <div class="col-span-1 font-medium text-zinc-500 px-2">
             {{ formatDateTime(order.created_at) }}
           </div>
           <div class="col-span-1 ellipsis pr-4" :title="order.address_customer">
             {{ order.address_customer }}
           </div>
-          <div class="col-span-1 font-medium">
+          <div class="col-span-1 font-medium flex justify-center">
             <button
               @click.prevent="OrderDetail(order.order_id)"
               class="flex items-center gap-2 border border-zinc-300 rounded-lg px-3 py-1 cursor-pointer hover:bg-zinc-100 transition-all duration-100"
@@ -505,7 +510,7 @@ onMounted(() => {
             </button>
           </div>
           <div v-if="currentOrderId === order.order_id"
-            class="col-span-8 p-5 mt-2 border border-zinc-300 bg-gray-50 rounded-lg shadow-xl">
+            class="col-span-9 p-5 mt-2 border border-zinc-300 bg-gray-50 rounded-lg shadow-xl">
             <div class="flex justify-start items-center gap-3">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

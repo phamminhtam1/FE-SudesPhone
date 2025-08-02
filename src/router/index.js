@@ -39,6 +39,7 @@ import OrderDetailPage from '@/views/OrderDetailPage.vue'
 import ListCustomer from '@/views/Admin/Customer/ListCustomer.vue'
 import CustomerDetail from '@/views/Admin/Customer/CustomerDetail.vue'
 import OrderManagerment from '@/views/Admin/Customer/OrderManagerment.vue'
+import ListBlog from '@/views/Admin/Blog/ListBlog.vue'
 
 // Branch routes
 const branchRoutes = [
@@ -227,6 +228,15 @@ const customerRouters = [
   },
 ]
 
+const blogRouters = [
+  {
+    path: '/admin/blog',
+    name: 'blog',
+    component: ListBlog,
+    meta: { requiresAuth: true, name_page: 'Quản lý bài viết' },
+  },
+]
+
 const FERouters = [
   {
     path: '/',
@@ -320,6 +330,7 @@ const router = createRouter({
     ...supplierRouters,
     ...StockReceipt,
     ...customerRouters,
+    ...blogRouters,
     ...FERouters,
   ],
   scrollBehavior(to, from, savedPosition) {

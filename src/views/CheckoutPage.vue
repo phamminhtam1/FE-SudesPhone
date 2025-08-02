@@ -172,6 +172,10 @@ async function submit() {
         }
       } else {
         // COD hoặc bank transfer - chuyển đến trang hoàn tất
+        // Set session để cho phép truy cập trang checkoutdone (chỉ trong tab hiện tại)
+        sessionStorage.setItem('recent_order_placed', 'true')
+        sessionStorage.setItem('order_timestamp', Date.now().toString())
+
         Swal.fire({
           icon: 'success',
           title: 'Thành công',

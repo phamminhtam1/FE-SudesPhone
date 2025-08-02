@@ -452,7 +452,7 @@ onMounted(() => {
                  </td>
                  <td class="px-4 py-3">
                    <div class="flex items-center justify-center">
-                    <span class=" font-medium text-[14px]">{{ order.payment?.method }}</span>
+                    <span class=" font-medium text-[14px] uppercase">{{ order.payment?.method }}</span>
                    </div>
                  </td>
                  <td class="px-3 py-3">
