@@ -284,9 +284,9 @@
             </router-link>
           </li>
           <li>
-            <router-link to="/admin/customer/order-management"
+            <router-link to="/admin/blog/create"
               class="block py-1 hover:text-white ml-17 hover:-translate-y-0.5 transition duration-300">
-              QL bài viết
+              Thêm bài viết
             </router-link>
           </li>
         </ul>
