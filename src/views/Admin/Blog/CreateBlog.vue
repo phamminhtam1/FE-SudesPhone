@@ -1,14 +1,37 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import axiosAdmin from '@/plugins/axion';
+import { watch } from 'vue';
 import HeaderAdmin from '@/components/layout/backend/HeaderAdmin.vue';
 import LeftMenu from '@/components/layout/backend/LeftMenu.vue';
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import Swal from 'sweetalert2';
 
-const shortDescription = ref('')
-const content = ref('')
 const selectedFile = ref(null)
 const isDragOver = ref(false)
+const published = ref(0)
+
+const title = ref('')
+const summary = ref('')
+const content = ref('')
+const meta_title = ref('')
+const meta_description =ref('')
+const keywords = ref('')
+const published_at = ref(null)
+const categoryBlogPost = ref([])
+const selectedCategory = ref('')
+
+// Computed property to check if published_at should be disabled
+const isPublishedAtDisabled = computed(() => {
+  return published.value !== 0
+})
+
+watch(published, (newVal) => {
+  if (newVal === 1) {
+    published_at.value = null
+  }
+})
 
 const filePreview = computed(() => {
   if (selectedFile.value) {
@@ -41,6 +64,50 @@ const handleDragOver = (event) => {
 const handleDragLeave = () => {
   isDragOver.value = false
 }
+
+async function fetchCategoryBlogPost() {
+  const res = await axiosAdmin.get('/api/category-blog-post/')
+  categoryBlogPost.value = res.data.categoryBlogPosts
+}
+
+async function submit() {
+  try {
+    const formData = new FormData()
+    formData.append('title', title.value)
+    formData.append('summary', summary.value)
+    formData.append('content', content.value)
+    formData.append('meta_title', meta_title.value)
+    formData.append('meta_description', meta_description.value)
+    formData.append('keywords', keywords.value)
+    formData.append('published', published.value)
+    formData.append('category_blog_id', selectedCategory.value)
+    if (published.value === 0) {
+      formData.append('published_at', published_at.value)
+    }
+    formData.append('thumbnail', selectedFile.value)
+
+    await axiosAdmin.post('/api/blog-post/create', formData)
+    Swal.fire({
+      title: 'Thành công',
+      text: 'Bài viết đã được tạo thành công',
+      icon: 'success',
+      confirmButtonText: 'OK'
+    })
+  } catch (error) {
+    console.log(error)
+    Swal.fire({
+      title: 'Lỗi',
+      text: 'Đã xảy ra lỗi khi tạo bài viết',
+      icon: 'error',
+      confirmButtonText: 'OK'
+    })
+  }
+}
+
+onMounted(() => {
+  fetchCategoryBlogPost()
+})
+
 </script>
 
 <template>
@@ -65,7 +132,7 @@ const handleDragLeave = () => {
             class="border border-zinc-300 hover:border-green-600 rounded-lg px-4 flex py-1.5 mt-1 hover:bg-green-600 hover:text-zinc-100 cursor-pointer transition duration-200 ">
             <span class="text-[14px] font-medium">Hủy</span>
           </button>
-          <button
+          <!-- <button
             class="flex items-center border border-zinc-300 hover:border-green-600 rounded-lg px-4 py-1.5 mt-1 hover:bg-green-600 hover:text-zinc-100 cursor-pointer transition duration-200 ">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -80,9 +147,9 @@ const handleDragLeave = () => {
               <path d="M7 3v4a1 1 0 0 0 1 1h7"></path>
             </svg>
             <span class="text-[14px] font-medium">Lưu nháp</span>
-          </button>
-          <button
-            class="border border-[#2563EB] rounded-lg px-4 flex py-1.5 mt-1 bg-[#2563EB] text-zinc-100 cursor-pointer transition duration-200 ">
+          </button> -->
+          <button @click="submit"
+            class="border border-[#2563EB] rounded-lg px-4 flex py-1.5 mt-1 bg-[#2563EB] hover:bg-blue-800 hover:border-blue-800 text-zinc-100 cursor-pointer transition duration-200 ">
             <span class="text-[14px] font-medium">Xuất bản</span>
           </button>
         </div>
@@ -100,13 +167,13 @@ const handleDragLeave = () => {
               <span class="text-[14px] font-medium text-zinc-500">Tiêu đề*</span>
               <input type="text"
                 class="w-full focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-1.5 px-2"
-                placeholder="Nhập tiêu đề bài viết...">
+                placeholder="Nhập tiêu đề bài viết..." v-model="title">
             </div>
           </div>
           <div class="mt-6">
             <div class="flex flex-col gap-1">
               <span class="text-[14px] font-medium text-zinc-500">Mô tả ngắn*</span>
-              <QuillEditor v-model:content="shortDescription" contentType="html" theme="snow"
+              <QuillEditor v-model:content="summary" contentType="html" theme="snow"
                 placeholder="Nhập mô tả ngắn cho bài viết..."
                 style="height: 100px; border-bottom: 1px solid #e0e0e0; border-radius: 10px; margin-top: -10px" />
             </div>
@@ -116,7 +183,7 @@ const handleDragLeave = () => {
               <span class="text-[14px] font-medium text-zinc-500">Nội dung bài viết*</span>
               <QuillEditor v-model:content="content" contentType="html" theme="snow"
                 placeholder="Nhập nội dung bài viết..."
-                style="height: 200px; border-bottom: 1px solid #e0e0e0; border-radius: 10px; margin-top: -10px" />
+                style="height: 400px; border-bottom: 1px solid #e0e0e0; border-radius: 10px; margin-top: -10px" />
             </div>
           </div>
           <p class="text-[12px] text-zinc-500 mt-2">Tip: Sử dụng markdown để định dạng văn bản</p>
@@ -140,7 +207,7 @@ const handleDragLeave = () => {
             <div class="mt-6">
               <div class="flex flex-col gap-1">
                 <span class="text-[14px] font-medium text-zinc-500">Trạng thái</span>
-                <select name="" id=""
+                <select name="" id="" v-model.number="published"
                   class="w-full focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-2 px-2 text-sm text-zinc-500">
                   <option value="0">Nháp</option>
                   <option value="1">Đã xuất bản</option>
@@ -150,10 +217,35 @@ const handleDragLeave = () => {
             <div class="mt-4 mb-4">
               <div class="flex flex-col gap-1">
                 <span class="text-[14px] font-medium text-zinc-500">Ngày xuất bản</span>
-                <input type="datetime-local"
-                  class="w-full focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-2 px-2 text-sm text-zinc-500">
+                <input type="datetime-local" v-model="published_at" :disabled="isPublishedAtDisabled"
+                  class="w-full focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-2 px-2 text-sm text-zinc-500"
+                  :class="{ 'bg-gray-100 cursor-not-allowed': isPublishedAtDisabled }">
               </div>
             </div>
+          </div>
+          <div class="py-2 px-5 border border-zinc-300 rounded-lg mt-6">
+            <div class="flex items-center gap-2 mb-4">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
+                <path
+                  d="M3 6C3 4.34315 4.34315 3 6 3H7C8.65685 3 10 4.34315 10 6V7C10 8.65685 8.65685 10 7 10H6C4.34315 10 3 8.65685 3 7V6Z"
+                  stroke="#7F7F88" stroke-width="2"></path>
+                <path
+                  d="M14 6C14 4.34315 15.3431 3 17 3H18C19.6569 3 21 4.34315 21 6V7C21 8.65685 19.6569 10 18 10H17C15.3431 10 14 8.65685 14 7V6Z"
+                  stroke="#7F7F88" stroke-width="2"></path>
+                <path
+                  d="M14 17C14 15.3431 15.3431 14 17 14H18C19.6569 14 21 15.3431 21 17V18C21 19.6569 19.6569 21 18 21H17C15.3431 21 14 19.6569 14 18V17Z"
+                  stroke="#7F7F88" stroke-width="2"></path>
+                <path
+                  d="M3 17C3 15.3431 4.34315 14 6 14H7C8.65685 14 10 15.3431 10 17V18C10 19.6569 8.65685 21 7 21H6C4.34315 21 3 19.6569 3 18V17Z"
+                  stroke="#7F7F88" stroke-width="2"></path>
+              </svg>
+              <h1 class="text-[20px] font-medium text-zinc-500">Danh mục</h1>
+            </div>
+            <select name="" id="" v-model="selectedCategory"
+              class="w-full focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-2 px-2 text-sm text-zinc-500 mb-5">
+              <option value="">Chọn danh mục</option>
+              <option v-for="category in categoryBlogPost" :key="category.id" :value="category.id">{{ category.name }}</option>
+            </select>
           </div>
           <div class="py-2 px-5 border border-zinc-300 rounded-lg mt-6">
             <div class="flex items-center gap-2 mb-4">
@@ -212,16 +304,23 @@ const handleDragLeave = () => {
             <div class="mt-6">
               <div class="flex flex-col gap-1">
                 <span class="text-[14px] font-medium text-zinc-500">Tiêu đề SEO</span>
-                <input type="text" name="" id="" placeholder="Tiêu đề tối ưu cho SEO..."
+                <input type="text" name="" id="" placeholder="Tiêu đề tối ưu cho SEO..." v-model="meta_title"
                   class="w-full focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-1.5 px-2">
               </div>
             </div>
             <div class="mt-6 mb-4">
               <div class="flex flex-col gap-1">
                 <span class="text-[14px] font-medium text-zinc-500">Mô tả SEO</span>
-                <textarea name="" id="" placeholder="Mô tả ngắn gọn cho công cụ tìm kiếm..."
+                <textarea name="" id="" placeholder="Mô tả ngắn gọn cho công cụ tìm kiếm..." v-model="meta_description"
                   class="w-full focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-1.5 px-2"
                   rows="3"></textarea>
+              </div>
+            </div>
+            <div class="mt-6 mb-4">
+              <div class="flex flex-col gap-1">
+                <span class="text-[14px] font-medium text-zinc-500">Từ khóa SEO (Cách nhau bằng dấu phẩy)</span>
+                <input type="text" name="" id="" placeholder="Mô tả ngắn gọn cho công cụ tìm kiếm..." v-model="keywords"
+                  class="w-full focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-1.5 px-2">
               </div>
             </div>
           </div>

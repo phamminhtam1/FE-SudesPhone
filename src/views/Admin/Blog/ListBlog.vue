@@ -2,14 +2,40 @@
 import { ref } from 'vue'
 import LeftMenu from '@/components/layout/backend/LeftMenu.vue';
 import HeaderAdmin from '@/components/layout/backend/HeaderAdmin.vue';
+import { onMounted } from 'vue';
+import { useBlogPostStore } from '@/stores/blogpost';
+import { storeToRefs } from 'pinia';
+const blogPostStore = useBlogPostStore()
+const { blogposts } = storeToRefs(blogPostStore)
 
-const isMenuOpen = ref(false)
+const openMenuId = ref(null)
 
-const toggelMenu = () => {
-  isMenuOpen.value = !isMenuOpen.value
+const toggelMenu = (id) => {
+  if (openMenuId.value === id) {
+    openMenuId.value = null
+  } else {
+    openMenuId.value = id
+  }
 }
 
+const formatVietnameseDate = (dateString) => {
+  if (!dateString) return ''
 
+  const date = new Date(dateString)
+  const options = {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }
+
+  return date.toLocaleDateString('vi-VN', options)
+}
+
+onMounted(() => {
+  blogPostStore.fetchBlogPost()
+})
 </script>
 
 <template>
@@ -63,15 +89,15 @@ const toggelMenu = () => {
         </button>
         </router-link>
       </div>
-      <div
+      <div v-for="blogpost in blogposts" :key="blogpost.post_id"
         class="border border-zinc-300 rounded-lg p-5 hover:shadow-blue-100 hover:shadow-lg hover:border-blue-100 transition duration-200 mb-4">
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4" >
           <img class="w-[127px] h-[90px] rounded-lg self-start"
-            src="https://bizweb.dktcdn.net/100/480/632/articles/010.jpg?v=1682692969433" alt="">
+            :src="blogpost.thumbnail_url" alt="">
           <div class=" flex flex-col gap-3 w-full relative">
-            <h1 class="text-[18px] font-medium text-zinc-500">iPhone 15 Pro Max - Những tính năng đột phá mới nhất</h1>
+            <h1 class="text-[18px] font-medium text-zinc-500 max-w-2/3 ">{{blogpost.title}}</h1>
             <div class="absolute top-0 right-4">
-              <button @click="toggelMenu"
+              <button @click="toggelMenu(blogpost.post_id)"
                 class=" cursor-pointer hover:bg-green-600 rounded-xl px-2 py-1 hover:text-white">
                 <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path id="Combined Shape" fill-rule="evenodd" clip-rule="evenodd"
@@ -83,7 +109,7 @@ const toggelMenu = () => {
             <transition name="fade-slide">
               <div
               class="absolute top-10 right-4 border border-zinc-300 rounded-lg p-1 flex flex-col z-50 bg-white shadow-lg"
-              v-if="isMenuOpen">
+              v-if="openMenuId === blogpost.post_id">
               <button
                 class="w-full cursor-pointer hover:bg-green-600 rounded-lg px-2 py-1 hover:text-white flex items-center text-zinc-600 text-[14px]">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -132,8 +158,7 @@ const toggelMenu = () => {
               </button>
             </div>
             </transition>
-            <span class="text-[14px] text-zinc-500">Khám phá những tính năng cách mạng trên iPhone 15 Pro Max với chip
-              A17 Pro và camera tiên tiến</span>
+            <span class="text-[14px] text-zinc-500 max-w-2/3 max-h-10 overflow-hidden" v-html="blogpost.summary"></span>
             <div class="flex items-center gap-5 w-full">
               <div class="flex gap-1 items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -145,7 +170,7 @@ const toggelMenu = () => {
                   <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
-                <span class="text-[14px] text-zinc-500">Admin</span>
+                <span class="text-[14px] text-zinc-500">{{blogpost.user.name}} ( {{blogpost.user.role.name}} )</span>
               </div>
               <div class="flex gap-1 items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -159,7 +184,7 @@ const toggelMenu = () => {
                   <rect width="18" height="18" x="3" y="4" rx="2"></rect>
                   <path d="M3 10h18"></path>
                 </svg>
-                <span class="text-[14px] text-zinc-500">10:30 20 thg 1, 2024</span>
+                <span class="text-[14px] text-zinc-500">{{formatVietnameseDate(blogpost.created_at)}}</span>
               </div>
               <div class="flex gap-1 items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -173,7 +198,7 @@ const toggelMenu = () => {
                   </path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
-                <span class="text-[14px] text-zinc-500">100</span>
+                <span class="text-[14px] text-zinc-500">{{blogpost.view_count}}</span>
               </div>
               <div class="flex gap-1 items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -187,9 +212,14 @@ const toggelMenu = () => {
                 <span class="text-[14px] text-zinc-500">10</span>
               </div>
             </div>
-            <div class="flex justify-between items-center w-full">
-              <div class="border border-green-200 bg-green-200 rounded-xl text-green-900 text-[12px] font-medium  px-2">
-                <span>Đã xuất bản</span>
+            <div class="flex justify-between items-center w-full -mt-2">
+              <div class="flex gap-2">
+                <div class="border border-green-200 bg-green-200 rounded-xl text-green-900 text-[12px] font-medium px-2 py-1">
+                  <span>{{blogpost.published === 1 ? 'Đã xuất bản' : 'Nháp'}}</span>
+                </div>
+                <div class="border border-zinc-200 rounded-xl text-[12px] font-medium px-2 py-1 text-zinc-500">
+                  <span>{{blogpost.category_blog.name}}</span>
+                </div>
               </div>
               <div class="flex gap-2 justify-center items-center">
                 <button

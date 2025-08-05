@@ -41,6 +41,7 @@ import CustomerDetail from '@/views/Admin/Customer/CustomerDetail.vue'
 import OrderManagerment from '@/views/Admin/Customer/OrderManagerment.vue'
 import ListBlog from '@/views/Admin/Blog/ListBlog.vue'
 import CreateBlog from '@/views/Admin/Blog/CreateBlog.vue'
+import ListCategoryBlogPost from '@/views/Admin/CategoryBlogPost/ListCategoryBlogPost.vue'
 
 // Branch routes
 const branchRoutes = [
@@ -241,6 +242,12 @@ const blogRouters = [
     name: 'create_blog',
     component: CreateBlog,
     meta: { requiresAuth: true, name_page: 'Thêm bài viết' },
+  },
+  {
+    path: '/admin/blog/category',
+    name: 'category_blog',
+    component: ListCategoryBlogPost,
+    meta: { requiresAuth: true, name_page: 'Quản lý danh mục bài viết' },
   },
 ]
 

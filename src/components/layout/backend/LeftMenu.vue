@@ -278,6 +278,12 @@
       <transition>
         <ul v-if="isOpenBlog" class=" text-sm text-zinc-300 space-y-1 w-full bg-[#384153]">
           <li>
+            <router-link :to="{name: 'category_blog'}"
+              class="block py-1 hover:text-white ml-17 hover:-translate-y-0.5 transition duration-300">
+              QL danh mục bài viết
+            </router-link>
+          </li>
+          <li>
             <router-link :to="{name: 'blog'}"
               class="block py-1 hover:text-white ml-17 hover:-translate-y-0.5 transition duration-300">
               Danh sách bài viết
