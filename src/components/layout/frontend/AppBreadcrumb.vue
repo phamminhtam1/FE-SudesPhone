@@ -4,13 +4,20 @@ import { computed } from 'vue'
 const props = defineProps({
   productName: String,
   categoryName: String,
-  categoryId: [String, Number]
+  categoryBlogName: String,
+  categoryId: [String, Number],
+  categoryBlogId: [String, Number]
 })
 
 const breadcrumbs = computed(() => {
   const crumbs = [{ text: 'Trang chủ', to: '/' }]
   if (props.categoryName && props.categoryId) {
     crumbs.push({ text: props.categoryName, to: `/category/${props.categoryId}` })
+  }
+  if (props.categoryBlogName && props.categoryBlogId) {
+    // crumbs.push({ text: props.categoryBlogName, to: `/blog-all/${props.categoryId}` })
+    crumbs.push({ text: props.categoryBlogName, to: `/blog/all` })
+
   }
   if (props.productName) {
     crumbs.push({ text: props.productName, to: null })
@@ -26,7 +33,7 @@ const breadcrumbs = computed(() => {
         <ol class="flex">
           <li v-for="(crumb, index) in breadcrumbs" :key="index" class=" flex justify-center">
             <router-link v-if="crumb.to && index !== breadcrumbs.length - 1" :to="crumb.to"
-              class="flex justify-center items-center gap-3 text-zinc-700 text-[15px] hover:text-red-700">
+              class="flex justify-center items-center gap-3 text-zinc-700 text-[14px] hover:text-red-700">
               {{ crumb.text }}
               <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" width="10px"
                 height="10px" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"
@@ -36,7 +43,7 @@ const breadcrumbs = computed(() => {
                 </path>
               </svg>
             </router-link>
-            <span class="text-red-700 text-[15px]" v-else>{{ crumb.text }}</span>
+            <span class="text-red-700 text-[14px]" v-else>{{ crumb.text }}</span>
           </li>
         </ol>
       </nav>

@@ -1,16 +1,29 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, defineProps, computed, onMounted, watch } from 'vue'
 import axiosAdmin from '@/plugins/axion';
-import { watch } from 'vue';
 import HeaderAdmin from '@/components/layout/backend/HeaderAdmin.vue';
 import LeftMenu from '@/components/layout/backend/LeftMenu.vue';
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
-import Swal from 'sweetalert2';
+import Swal from 'sweetalert2'
+import { useBlogPostStore } from '@/stores/blogpost';
+import { storeToRefs } from 'pinia';
+const blogPostStore = useBlogPostStore()
+const {blogpost} = storeToRefs(blogPostStore)
+
+const props = defineProps({
+  id: {
+    type: [String, Number],
+    required: true
+  }
+})
+
+const blogpostId = props.id
 
 const selectedFile = ref(null)
 const isDragOver = ref(false)
 const published = ref(0)
+const currentThumbnail = ref('')
 const showPreview = ref(false)
 
 const title = ref('')
@@ -20,8 +33,10 @@ const meta_title = ref('')
 const meta_description =ref('')
 const keywords = ref('')
 const published_at = ref(null)
-const categoryBlogPost = ref([])
 const selectedCategory = ref('')
+
+// Lấy categoryBlogPost từ store
+const { categoryBlogPost: storeCategoryBlogPost } = storeToRefs(blogPostStore)
 
 // Computed property to check if published_at should be disabled
 const isPublishedAtDisabled = computed(() => {
@@ -66,14 +81,10 @@ const handleDragLeave = () => {
   isDragOver.value = false
 }
 
-async function fetchCategoryBlogPost() {
-  const res = await axiosAdmin.get('/api/category-blog-post/')
-  categoryBlogPost.value = res.data.categoryBlogPosts
-}
-
 async function submit() {
   try {
     const formData = new FormData()
+    formData.append('_method', 'PUT')
     formData.append('title', title.value)
     formData.append('summary', summary.value)
     formData.append('content', content.value)
@@ -85,12 +96,13 @@ async function submit() {
     if (published.value === 0 && published_at.value) {
       formData.append('published_at', published_at.value)
     }
-    formData.append('thumbnail', selectedFile.value)
-
-    await axiosAdmin.post('/api/blog-post/create', formData)
+    if (selectedFile.value) {
+      formData.append('thumbnail', selectedFile.value)
+    }
+    await axiosAdmin.post(`/api/blog-post/edit/${blogpostId}`, formData)
     Swal.fire({
       title: 'Thành công',
-      text: 'Bài viết đã được tạo thành công',
+      text: 'Bài viết đã được cập nhật thành công',
       icon: 'success',
       confirmButtonText: 'OK'
     })
@@ -98,12 +110,28 @@ async function submit() {
     console.log(error)
     Swal.fire({
       title: 'Lỗi',
-      text: 'Đã xảy ra lỗi khi tạo bài viết',
+      text: 'Đã xảy ra lỗi khi cập nhật bài viết',
       icon: 'error',
       confirmButtonText: 'OK'
     })
   }
 }
+
+// Watcher để đổ dữ liệu khi store thay đổi
+watch(blogpost, (newBlogPost) => {
+  if (newBlogPost && Object.keys(newBlogPost).length > 0) {
+    title.value = newBlogPost.title || ''
+    summary.value = newBlogPost.summary || ''
+    content.value = newBlogPost.content || ''
+    meta_title.value = newBlogPost.meta_title || ''
+    meta_description.value = newBlogPost.meta_description || ''
+    keywords.value = newBlogPost.keywords || ''
+    published.value = newBlogPost.published || 0
+    selectedCategory.value = newBlogPost.category_blog_id || ''
+    published_at.value = newBlogPost.published_at || null
+    currentThumbnail.value = newBlogPost.thumbnail_url || ''
+  }
+}, { immediate: true })
 
 const togglePreview = () => {
   showPreview.value = !showPreview.value
@@ -113,8 +141,9 @@ const closePreview = () => {
   showPreview.value = false
 }
 
-onMounted(() => {
-  fetchCategoryBlogPost()
+onMounted(async () => {
+  await blogPostStore.fetchBlogPostById(blogpostId)
+  await blogPostStore.fetchCategoryBlogPost()
 })
 
 </script>
@@ -157,8 +186,8 @@ onMounted(() => {
             <span class="text-[14px] font-medium">Lưu nháp</span>
           </button> -->
           <button @click="submit"
-            class="border border-[#2563EB] rounded-lg px-4 flex py-1.5 mt-1 bg-[#2563EB] hover:bg-blue-800 hover:border-blue-800 text-zinc-100 cursor-pointer transition duration-200 ">
-            <span class="text-[14px] font-medium">Xuất bản</span>
+            class="border border-green-600 rounded-lg px-4 flex py-1.5 mt-1 bg-green-600 hover:bg-green-800 hover:border-green-800 text-zinc-100 cursor-pointer transition duration-200 ">
+            <span class="text-[14px] font-medium">Chỉnh sửa</span>
           </button>
         </div>
       </div>
@@ -252,7 +281,7 @@ onMounted(() => {
             <select name="" id="" v-model="selectedCategory"
               class="w-full focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-2 px-2 text-sm text-zinc-500 mb-5">
               <option value="">Chọn danh mục</option>
-              <option v-for="category in categoryBlogPost" :key="category.id" :value="category.id">{{ category.name }}</option>
+              <option v-for="category in storeCategoryBlogPost" :key="category.id" :value="category.id">{{ category.name }}</option>
             </select>
           </div>
           <div class="py-2 px-5 border border-zinc-300 rounded-lg mt-6">
@@ -353,7 +382,7 @@ onMounted(() => {
           </div>
 
           <!-- Upload Component -->
-          <div v-if="!selectedFile"
+          <div v-if="!selectedFile && !currentThumbnail"
             class="border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer"
             :class="isDragOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400'"
             @drop="handleDrop" @dragover="handleDragOver" @dragleave="handleDragLeave" @click="$refs.fileInput.click()">
@@ -380,6 +409,26 @@ onMounted(() => {
                 Chọn file
               </button>
             </div>
+          </div>
+
+          <!-- Current Thumbnail Display -->
+          <div v-if="!selectedFile && currentThumbnail" class="relative">
+            <img :src="currentThumbnail" alt="Current thumbnail" class="w-full h-auto object-cover rounded-lg">
+            <div class="absolute inset-0 bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
+              <button @click="$refs.fileInput.click()"
+                class="opacity-0 hover:opacity-100 bg-white text-gray-700 rounded-lg px-4 py-2 font-medium transition-opacity">
+                Thay đổi ảnh
+              </button>
+            </div>
+            <button @click="currentThumbnail = ''"
+              class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" x2="6" y1="6" y2="18"></line>
+                <line x1="6" x2="18" y1="6" y2="18"></line>
+              </svg>
+            </button>
+            <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="handleFileSelect">
           </div>
 
           <!-- Preview Image -->
@@ -436,7 +485,7 @@ onMounted(() => {
                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
                 <circle cx="12" cy="7" r="4"/>
               </svg>
-              <span>Admin (Quản trị viên)</span>
+              <span>{{ blogpost?.user?.name || 'Admin' }} ({{ blogpost?.user?.role?.name || 'Quản trị viên' }})</span>
             </div>
             <div class="flex items-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -446,7 +495,7 @@ onMounted(() => {
                 <rect width="18" height="18" x="3" y="4" rx="2"/>
                 <path d="M3 10h18"/>
               </svg>
-              <span>{{ new Date().toLocaleDateString('vi-VN') }}</span>
+              <span>{{ blogpost?.created_at ? new Date(blogpost.created_at).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN') }}</span>
             </div>
             <div class="flex items-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -454,7 +503,7 @@ onMounted(() => {
                 <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/>
                 <circle cx="12" cy="12" r="3"/>
               </svg>
-              <span>0 lượt xem</span>
+              <span>{{ blogpost?.view_count || 0 }} lượt xem</span>
             </div>
           </div>
 
@@ -465,14 +514,14 @@ onMounted(() => {
               {{ published === 1 ? 'Đã xuất bản' : 'Nháp' }}
             </span>
             <span v-if="selectedCategory" class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
-              {{ categoryBlogPost.find(cat => cat.id === selectedCategory)?.name || 'Danh mục' }}
+              {{ storeCategoryBlogPost.find(cat => cat.id === selectedCategory)?.name || 'Danh mục' }}
             </span>
           </div>
         </div>
 
         <!-- Featured Image -->
-        <div v-if="filePreview" class="mb-6">
-          <img :src="filePreview" :alt="title" class="w-full h-64 object-cover rounded-lg shadow-md">
+        <div v-if="filePreview || currentThumbnail" class="mb-6">
+          <img :src="filePreview || currentThumbnail" :alt="title" class="w-full h-64 object-cover rounded-lg shadow-md">
         </div>
 
         <!-- Summary -->
@@ -514,8 +563,8 @@ onMounted(() => {
           Đóng
         </button>
         <button @click="submit"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer">
-          Xuất bản bài viết
+          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer">
+          Cập nhật bài viết
         </button>
       </div>
     </div>

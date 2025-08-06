@@ -1,4 +1,4 @@
-import axiosAdmin from "@/plugins/axion";
+import axiosCustomer from "@/plugins/axioscustomer";
 import { ref } from "vue";
 import { defineStore } from "pinia";
 export const useBlogPostStore = defineStore('blogpost', () => {
@@ -7,17 +7,17 @@ export const useBlogPostStore = defineStore('blogpost', () => {
   const blogpost = ref({})
 
   async function fetchBlogPost() {
-    const res = await axiosAdmin.get('/api/blog-post/')
+    const res = await axiosCustomer.get('/api/blog-post-fe')
     blogposts.value = res.data.blogPosts
   }
 
   async function fetchCategoryBlogPost() {
-    const res = await axiosAdmin.get('/api/category-blog-post/')
+    const res = await axiosCustomer.get('/api/category-blog-post-fe')
     categoryBlogPost.value = res.data.categoryBlogPosts
   }
 
   async function fetchBlogPostById(id) {
-    const res = await axiosAdmin.get(`/api/blog-post/${id}`)
+    const res = await axiosCustomer.get(`/api/blog-post-fe/${id}`)
     blogpost.value = res.data.blogPost
   }
 

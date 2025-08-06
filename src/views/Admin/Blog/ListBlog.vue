@@ -1,12 +1,15 @@
 <script setup>
 import { ref } from 'vue'
+import axiosAdmin from '@/plugins/axion';
+import router from '@/router';
+import Swal from 'sweetalert2';
 import LeftMenu from '@/components/layout/backend/LeftMenu.vue';
 import HeaderAdmin from '@/components/layout/backend/HeaderAdmin.vue';
 import { onMounted } from 'vue';
 import { useBlogPostStore } from '@/stores/blogpost';
 import { storeToRefs } from 'pinia';
 const blogPostStore = useBlogPostStore()
-const { blogposts } = storeToRefs(blogPostStore)
+const { blogposts, categoryBlogPost } = storeToRefs(blogPostStore)
 
 const openMenuId = ref(null)
 
@@ -33,8 +36,38 @@ const formatVietnameseDate = (dateString) => {
   return date.toLocaleDateString('vi-VN', options)
 }
 
+const goEditBlog = (id) => {
+  router.push({name: 'edit_blog', params: {id: id}})
+}
+
+const goShowBlogDetail = (id) => {
+  router.push({name: 'show_blog_detail', params: {id: id}})
+}
+
+async function goDeteleBlogPost(id) {
+  try{
+    await axiosAdmin.delete(`/api/blog-post/delete/${id}`)
+    Swal.fire({
+        title: 'Thành công',
+        text: 'Bài viết đã được cập nhật thành công',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      })
+    blogPostStore.fetchBlogPost()
+  }catch (error) {
+    console.log(error)
+    Swal.fire({
+      title: 'Lỗi',
+      text: 'Đã xảy ra lỗi khi cập nhật bài viết',
+      icon: 'error',
+      confirmButtonText: 'OK'
+    })
+  }
+}
+
 onMounted(() => {
   blogPostStore.fetchBlogPost()
+  blogPostStore.fetchCategoryBlogPost()
 })
 </script>
 
@@ -45,7 +78,7 @@ onMounted(() => {
     <div class=" mx-5 bg-white rounded-lg border border-zinc-300 p-5">
       <span class="text-[18px] font-medium text-zinc-500">Bộ lọc & Tìm kiếm</span>
       <div class="grid grid-cols-6 gap-2 mt-5 mb-3">
-        <div class="col-span-4">
+        <div class="col-span-3">
           <div class=" border border-zinc-300 rounded-lg py-1.5 relative">
             <input type="text" class="w-full pl-10 focus:outline-none focus:ring-0"
               placeholder="Tìm kiếm theo tên bài viết...">
@@ -66,6 +99,12 @@ onMounted(() => {
             <option value="">Tất cả trạng thái</option>
             <option value="published">Đã xuất bản</option>
             <option value="draft">Nháp</option>
+          </select>
+        </div>
+        <div class="col-span-1">
+          <select name="" id="" class="w-full border border-zinc-300 rounded-lg py-1.5 relative p-2 text-zinc-500">
+            <option value="">Danh mục</option>
+            <option v-for="categoryblog in categoryBlogPost" :key="categoryblog.id" :value="categoryblog.id">{{categoryblog.name}}</option>
           </select>
         </div>
         <div class="col-span-1">
@@ -95,7 +134,7 @@ onMounted(() => {
           <img class="w-[127px] h-[90px] rounded-lg self-start"
             :src="blogpost.thumbnail_url" alt="">
           <div class=" flex flex-col gap-3 w-full relative">
-            <h1 class="text-[18px] font-medium text-zinc-500 max-w-2/3 ">{{blogpost.title}}</h1>
+            <h1 class="text-[18px] font-medium text-zinc-500 max-w-2/3 line-clamp-2 ">{{blogpost.title}}</h1>
             <div class="absolute top-0 right-4">
               <button @click="toggelMenu(blogpost.post_id)"
                 class=" cursor-pointer hover:bg-green-600 rounded-xl px-2 py-1 hover:text-white">
@@ -110,7 +149,7 @@ onMounted(() => {
               <div
               class="absolute top-10 right-4 border border-zinc-300 rounded-lg p-1 flex flex-col z-50 bg-white shadow-lg"
               v-if="openMenuId === blogpost.post_id">
-              <button
+              <button @click="goShowBlogDetail(blogpost.post_id)"
                 class="w-full cursor-pointer hover:bg-green-600 rounded-lg px-2 py-1 hover:text-white flex items-center text-zinc-600 text-[14px]">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -140,7 +179,7 @@ onMounted(() => {
                 </svg>
                 <span>Chỉnh sửa</span>
               </button>
-              <button
+              <button @click="goDeteleBlogPost(blogpost.post_id)"
                 class="cursor-pointer hover:bg-green-600 rounded-lg px-2 py-1.5 hover:text-white flex items-center text-red-600 text-[14px]">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -158,7 +197,7 @@ onMounted(() => {
               </button>
             </div>
             </transition>
-            <span class="text-[14px] text-zinc-500 max-w-2/3 max-h-10 overflow-hidden" v-html="blogpost.summary"></span>
+            <span class="text-[14px] text-zinc-500 max-w-2/3 max-h-10 overflow-hidden line-clamp-2" v-html="blogpost.summary"></span>
             <div class="flex items-center gap-5 w-full">
               <div class="flex gap-1 items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -214,7 +253,7 @@ onMounted(() => {
             </div>
             <div class="flex justify-between items-center w-full -mt-2">
               <div class="flex gap-2">
-                <div class="border border-green-200 bg-green-200 rounded-xl text-green-900 text-[12px] font-medium px-2 py-1">
+                <div :class="blogpost.published === 1 ? 'border border-green-200 bg-green-200 rounded-xl text-green-900 text-[12px] font-medium px-2 py-1' : 'border border-zinc-200 bg-zinc-200 rounded-xl text-zinc-900 text-[12px] font-medium px-2 py-1'">
                   <span>{{blogpost.published === 1 ? 'Đã xuất bản' : 'Nháp'}}</span>
                 </div>
                 <div class="border border-zinc-200 rounded-xl text-[12px] font-medium px-2 py-1 text-zinc-500">
@@ -222,7 +261,7 @@ onMounted(() => {
                 </div>
               </div>
               <div class="flex gap-2 justify-center items-center">
-                <button
+                <button @click="goEditBlog(blogpost.post_id)"
                   class="flex justify-center items-center gap-1 border border-zinc-300 rounded-lg px-2 py-1 text-zinc-500 hover:bg-green-600 hover:text-zinc-100 transition duration-200 font-medium cursor-pointer hover:border-green-600">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -238,7 +277,7 @@ onMounted(() => {
                   </svg>
                   <span>Sửa</span>
                 </button>
-                <button
+                <button @click="goShowBlogDetail(blogpost.post_id)"
                   class="flex justify-center items-center gap-1 border border-zinc-300 rounded-lg px-2 py-1 text-zinc-500 hover:bg-green-600 hover:text-zinc-100 transition duration-200 font-medium cursor-pointer hover:border-green-600">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"

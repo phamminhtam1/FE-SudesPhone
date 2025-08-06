@@ -41,7 +41,11 @@ import CustomerDetail from '@/views/Admin/Customer/CustomerDetail.vue'
 import OrderManagerment from '@/views/Admin/Customer/OrderManagerment.vue'
 import ListBlog from '@/views/Admin/Blog/ListBlog.vue'
 import CreateBlog from '@/views/Admin/Blog/CreateBlog.vue'
+import ShowBlogDetail from '@/views/Admin/Blog/ShowBlogDetail.vue'
 import ListCategoryBlogPost from '@/views/Admin/CategoryBlogPost/ListCategoryBlogPost.vue'
+import EditBlog from '@/views/Admin/Blog/EditBlog.vue'
+import BLogPage from '@/views/BLogPage.vue'
+import BlogDetail from '@/views/BlogDetail.vue'
 
 // Branch routes
 const branchRoutes = [
@@ -244,10 +248,24 @@ const blogRouters = [
     meta: { requiresAuth: true, name_page: 'Thêm bài viết' },
   },
   {
+    path: '/admin/blog/show/:id',
+    name: 'show_blog_detail',
+    component: ShowBlogDetail,
+    props: true,
+    meta: { requiresAuth: true, name_page: 'Chi tiết bài viết' },
+  },
+  {
     path: '/admin/blog/category',
     name: 'category_blog',
     component: ListCategoryBlogPost,
     meta: { requiresAuth: true, name_page: 'Quản lý danh mục bài viết' },
+  },
+  {
+    path: '/admin/blog/edit/:id',
+    name: 'edit_blog',
+    component: EditBlog,
+    props: true,
+    meta: { requiresAuth: true, name_page: 'Chỉnh sửa bài viết' },
   },
 ]
 
@@ -292,6 +310,17 @@ const FERouters = [
         name: 'my-cart',
         component: CartPage,
       },
+      {
+        path: '/blog/all',
+        name: 'blog-all',
+        component: BLogPage,
+      },
+      {
+        path: '/blog/:id',
+        name: 'blog-detail',
+        component: BlogDetail,
+        props: true,
+      }
     ],
   },
   {

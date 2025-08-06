@@ -354,11 +354,11 @@ onMounted(async () => {
         <div class="max-w-7xl mx-auto px-4">
           <!-- Desktop Navigation -->
           <div class="hidden md:flex items-center justify-between h-10">
-            <a href="#" class="relative group px-2 py-1 text-white">
+            <router-link :to="{name: 'home'}" class="relative group px-2 py-1 text-white">
               Trang chủ
               <span
                 class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[0px] h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"></span>
-            </a>
+            </router-link>
             <a href="#" class="relative group px-2 py-1 text-white">
               Giới thiệu
               <span
@@ -400,11 +400,11 @@ onMounted(async () => {
               <span
                 class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[0px] h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"></span>
             </a>
-            <a href="#" class="relative group px-2 py-1 text-white">
+            <router-link :to="{name: 'blog-all'}" class="relative group px-2 py-1 text-white">
               Tin tức
               <span
                 class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[0px] h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"></span>
-            </a>
+            </router-link>
             <a href="#" class="relative group px-2 py-1 text-white">
               Liên hệ
               <span
