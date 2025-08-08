@@ -111,11 +111,11 @@ function format(value) {
       <div class="grid md:grid-cols-2 gap-6 mb-8">
         <div class="bg-[#334155] p-6 rounded-xl shadow-md">
           <h3 class="text-xl text-white font-semibold mb-2">Mô tả ngắn</h3>
-          <p class="text-white">{{ short_desc }}</p>
+          <p class="text-white" v-html="short_desc"></p>
         </div>
         <div class="bg-[#334155] p-6 rounded-xl shadow-md">
           <h3 class="text-xl text-white font-semibold mb-2">Mô tả chi tiết</h3>
-          <p class="text-white whitespace-pre-line">{{ long_desc }}</p>
+          <p class="text-white" v-html="long_desc"></p>
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 import { getCurrentInstance } from 'vue';
 import { useBlogPostStore } from '@/stores/blogpostfe';
 import { useRouter } from 'vue-router'
@@ -7,7 +7,14 @@ const router = useRouter()
 import { storeToRefs } from 'pinia';
 const blogPostStore = useBlogPostStore()
 const { emit } = getCurrentInstance()
-const {blogposts, categoryBlogPost, hotblogposts} = storeToRefs(blogPostStore)
+const {blogposts, categoryBlogPost, hotblogposts, categoryName} = storeToRefs(blogPostStore)
+
+const props = defineProps({
+  id: {
+    type: [String, Number],
+    required: true
+  }
+})
 
 const formatVietnameseDate = (dateString) => {
   if (!dateString) return ''
@@ -24,6 +31,7 @@ const formatVietnameseDate = (dateString) => {
 
 const handleClickPost = async (postId) => {
   await blogPostStore.fetchBlogPostById(postId)
+
   router.push({ name: 'blog-detail', params: { id: postId } })
 }
 
@@ -33,10 +41,15 @@ const handleClickCategory = async (categoryId) => {
 }
 
 onMounted(async () => {
-  emit('update-product-name', { productName: 'Tất cả tin tức' })
+  emit('update-product-name', { productName: categoryName })
   await blogPostStore.fetchCategoryBlogPost()
-  await blogPostStore.fetchBlogPost()
   await blogPostStore.fetchHotBlogPost()
+  await blogPostStore.fetchBlogPostByCategory(props.id)
+})
+
+// Watch for changes in categoryName and emit the update
+watch(categoryName, (newCategoryName) => {
+  emit('update-product-name', { productName: newCategoryName })
 })
 
 </script>
@@ -44,7 +57,7 @@ onMounted(async () => {
 <template>
   <div class=" flex max-w-[1260px] mx-auto mt-5 gap-7">
     <div class="w-3/4">
-      <h1 class="text-[18px] uppercase font-medium">Tất cả tin tức</h1>
+      <h1 class="text-[18px] uppercase font-medium">{{ categoryName }}</h1>
       <div class="flex mt-2 gap-5 border-b-zinc-300 border-b pb-7">
         <div class="w-4/7 flex flex-col justify-start gap-2">
           <template v-if="blogposts && blogposts.length > 0">
@@ -119,7 +132,7 @@ onMounted(async () => {
         <div class="text-white bg-black text-[16px] uppercase font-medium rounded-t-lg px-3 py-2">
           Danh mục tin tức
         </div>
-        <span class="px-3 py-2 font-medium text-zinc-600 text-[15px] hover:text-red-700 cursor-pointer" @click="handleClickCategory(categoryblog.id)"
+        <span @click="handleClickCategory(categoryblog.id)" class="px-3 py-2 font-medium text-zinc-600 text-[15px] hover:text-red-700 cursor-pointer"
           v-for="categoryblog in categoryBlogPost" :key="categoryblog.id">{{ categoryblog.name }}</span>
       </div>
       <div class="border border-zinc-200 rounded-lg flex flex-col shadow-lg mt-5">

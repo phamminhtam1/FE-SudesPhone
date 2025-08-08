@@ -3,6 +3,7 @@ import Banner from '@/components/layout/frontend/Banner.vue';
 import HotSale from '@/components/layout/frontend/HotSale.vue';
 import TopCategories from '@/components/layout/frontend/TopCategories.vue';
 import iPhone from '@/components/layout/frontend/iPhone.vue';
+import iPad from '@/components/layout/frontend/iPad.vue';
 </script>
 
 <template>
@@ -66,7 +67,8 @@ import iPhone from '@/components/layout/frontend/iPhone.vue';
     </section>
     <HotSale />
     <TopCategories />
-    <iPhone />
+    <iPhone class="mb-20" />
+    <iPad />
     <div class="mb-7"></div>
   </main>
 </template>

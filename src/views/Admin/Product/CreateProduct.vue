@@ -4,9 +4,11 @@ import HeaderAdmin from '@/components/layout/backend/HeaderAdmin.vue'
 import Swal from 'sweetalert2'
 import { ref, reactive, onMounted } from 'vue'
 import axios from '@/plugins/axion'
-import { useRouter } from 'vue-router'
+// import { useRouter } from 'vue-router'
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
-const router = useRouter()
+// const router = useRouter()
 const errors = reactive({})
 const loading = ref(false)
 
@@ -104,7 +106,7 @@ async function submit() {
       text: 'Tạo sản phẩm thành công',
       confirmButtonText: 'Đóng',
     })
-    router.push({ name: 'product' })
+    // router.push({ name: 'product' })
   } catch (err) {
     if (err.response?.status === 422) {
       const serverErrors = err.response.data.errors
@@ -153,47 +155,61 @@ onMounted(() => {
       <div>
         <!-- Tên sản phẩm -->
         <div class="mb-6">
-          <label class="font-medium text-zinc-700 mb-1 block">Tên sản phẩm <span
-              class="text-red-500 ml-1">*</span></label>
-          <input v-model="name" type="text" class="w-full border border-zinc-400 bg-white px-3 h-10" />
+          <div class="flex flex-col gap-1">
+            <span class="text-[14px] font-medium text-zinc-500">Tên sản phẩm*</span>
+            <input type="text"
+              class="w-full focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-1.5 px-2"
+              placeholder="Nhập tên sản phẩm..." v-model="name">
+          </div>
           <p v-if="errors.name" class="text-sm text-red-500 mt-1">{{ errors.name[0] }}</p>
         </div>
 
         <!-- Mô tả ngắn -->
         <div class="mb-6">
-          <label class="font-medium text-zinc-700 mb-1 block">Mô tả ngắn <span
-              class="text-red-500 ml-1">*</span></label>
-          <textarea v-model="short_desc" rows="3" class="w-full border border-zinc-400 bg-white px-3 py-2"></textarea>
+          <div class="flex flex-col gap-1">
+            <span class="text-[14px] font-medium text-zinc-500">Mô tả ngắn*</span>
+            <QuillEditor v-model:content="short_desc" contentType="html" theme="snow"
+              placeholder="Nhập mô tả ngắn cho sản phẩm..."
+              style="height: 100px; border-bottom: 1px solid #e0e0e0; border-radius: 10px; margin-top: -10px" />
+          </div>
           <p v-if="errors.short_desc" class="text-sm text-red-500 mt-1">{{ errors.short_desc[0] }}</p>
         </div>
 
         <!-- Mô tả chi tiết -->
         <div class="mb-6">
-          <label class="font-medium text-zinc-700 mb-1 block">Mô tả chi tiết <span
-              class="text-red-500 ml-1">*</span></label>
-          <textarea v-model="long_desc" rows="10" class="w-full border border-zinc-400 bg-white px-3 py-2"></textarea>
+          <div class="flex flex-col gap-1">
+            <span class="text-[14px] font-medium text-zinc-500">Mô tả chi tiết*</span>
+            <QuillEditor v-model:content="long_desc" contentType="html" theme="snow"
+              placeholder="Nhập mô tả chi tiết cho sản phẩm..."
+              style="height: 300px; border-bottom: 1px solid #e0e0e0; border-radius: 10px; margin-top: -10px" />
+          </div>
           <p v-if="errors.long_desc" class="text-sm text-red-500 mt-1">{{ errors.long_desc[0] }}</p>
         </div>
 
         <!-- Keywords -->
         <div class="mb-6">
-          <label class="font-medium text-zinc-700 mb-1 block">Từ khoá SEO <span
-              class="text-red-500 ml-1">*</span></label>
-          <input v-model="keywords" type="text" class="w-full border border-zinc-400 bg-white px-3 h-10" />
+          <div class="flex flex-col gap-1">
+            <span class="text-[14px] font-medium text-zinc-500">Từ khoá SEO*</span>
+            <input type="text"
+              class="w-full focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-1.5 px-2"
+              placeholder="Nhập từ khoá SEO..." v-model="keywords">
+          </div>
           <p v-if="errors.keywords" class="text-sm text-red-500 mt-1">{{ errors.keywords[0] }}</p>
         </div>
 
         <!-- Ảnh -->
         <div class="mb-6">
-          <span class="font-medium text-zinc-700">Hình ảnh<span class="text-red-500 ml-1">*</span></span>
-          <label class="flex flex-col items-center justify-center bg-white w-[480px] h-[256px] p-3
-                 border-2 border-dashed border-zinc-400 text-zinc-500
-                 cursor-pointer hover:bg-zinc-50 rounded-lg">
+          <div class="flex flex-col gap-1">
+            <span class="text-[14px] font-medium text-zinc-500">Hình ảnh*</span>
+          </div>
+          <label class="flex flex-col items-center justify-center bg-white w-full h-[256px] p-3
+                 border-2 border-dashed border-zinc-300 text-zinc-500
+                 cursor-pointer hover:bg-zinc-50 rounded-lg hover:border-blue-400 transition-colors">
             <i class="fa-solid fa-camera text-2xl mb-2"></i>
             <span class="text-sm">Chọn ảnh</span>
             <input type="file" accept="image/*" multiple class="hidden" @change="handleImage" />
-            <p v-if="errors.images" class="text-sm text-red-500 mt-1">{{ errors.images[0] }}</p>
           </label>
+          <p v-if="errors.images" class="text-sm text-red-500 mt-1">{{ errors.images[0] }}</p>
           <div class="mt-3 flex flex-wrap gap-3">
             <div v-for="(p, idx) in previews" :key="idx" class="relative group">
               <img :src="p" class="w-32 h-32 object-cover rounded border" />
@@ -211,13 +227,21 @@ onMounted(() => {
         <!-- Giá và khuyến mãi -->
         <div class="grid grid-cols-2 gap-4 mb-6">
           <div>
-            <label class="font-medium text-zinc-700 mb-1 block">Giá gốc<span class="text-red-500 ml-1">*</span></label>
-            <input v-model="price" type="number" class="w-full border border-zinc-400 bg-white px-3 h-10" />
+            <div class="flex flex-col gap-1">
+              <span class="text-[14px] font-medium text-zinc-500">Giá gốc*</span>
+              <input v-model="price" type="number"
+                class="w-full focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-1.5 px-2"
+                placeholder="Nhập giá gốc..." />
+            </div>
             <p v-if="errors.price" class="text-sm text-red-500 mt-1">{{ errors.price[0] }}</p>
           </div>
           <div>
-            <label class="font-medium text-zinc-700 mb-1 block">Giá Bán <span class="text-red-500 ml-1">*</span></label>
-            <input v-model="discount_price" type="number" class="w-full border border-zinc-400 bg-white px-3 h-10" />
+            <div class="flex flex-col gap-1">
+              <span class="text-[14px] font-medium text-zinc-500">Giá Bán*</span>
+              <input v-model="discount_price" type="number"
+                class="w-full focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-1.5 px-2"
+                placeholder="Nhập giá bán..." />
+            </div>
             <p v-if="errors.discount_price" class="text-sm text-red-500 mt-1">{{ errors.discount_price[0] }}</p>
           </div>
         </div>
@@ -225,33 +249,40 @@ onMounted(() => {
         <!-- Bảo hành và tồn kho -->
         <div class="grid grid-cols-1 gap-4 mb-6">
           <div>
-            <label class="font-medium text-zinc-700 mb-1 block">Bảo hành (tháng)<span
-                class="text-red-500 ml-1">*</span></label>
-            <input v-model="warranty_months" type="number" class="w-full border border-zinc-400 bg-white px-3 h-10" />
+            <div class="flex flex-col gap-1">
+              <span class="text-[14px] font-medium text-zinc-500">Bảo hành (tháng)*</span>
+              <input v-model="warranty_months" type="number"
+                class="w-full focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-1.5 px-2"
+                placeholder="Nhập số tháng bảo hành..." />
+            </div>
             <p v-if="errors.warranty_months" class="text-sm text-red-500 mt-1">{{ errors.warranty_months[0] }}</p>
           </div>
         </div>
         <!-- Danh mục -->
         <div class="mb-6">
-          <label class="font-medium text-zinc-700 mb-1 block">Danh mục<span class="text-red-500 ml-1">*</span></label>
-          <select v-model="selectedCategory" class="w-full border border-zinc-400 bg-white px-3 h-10">
-            <option disabled value="">-- Chọn danh mục --</option>
-            <option v-for="cat in cat_id" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-          </select>
+          <div class="flex flex-col gap-1">
+            <span class="text-[14px] font-medium text-zinc-500">Danh mục*</span>
+            <select v-model="selectedCategory"
+              class="w-full focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-1.5 px-2 text-sm text-zinc-500">
+              <option disabled value="">-- Chọn danh mục --</option>
+              <option v-for="cat in cat_id" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+            </select>
+          </div>
           <p v-if="errors.cat_id" class="text-sm text-red-500 mt-1">{{ errors.cat_id[0] }}</p>
         </div>
         <!-- Specs -->
         <div class="mb-6">
-          <label class="font-medium text-zinc-700 mb-2 block">Thông số kỹ thuật<span
-              class="text-red-500 ml-1">*</span></label>
+          <div class="flex flex-col gap-1">
+            <span class="text-[14px] font-medium text-zinc-500">Thông số kỹ thuật*</span>
+          </div>
           <div v-for="(spec, index) in specs" :key="index" class="flex items-center gap-2 mb-3">
             <input v-model="spec.spec_key" type="text" placeholder="Thuộc tính"
-              class="w-[45%] border border-zinc-400 bg-white px-3 h-10" />
+              class="w-[45%] focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-1.5 px-2" />
             <p v-if="errors[`specs.${index}.spec_key`]" class="text-sm text-red-500 mt-1">
               {{ errors[`specs.${index}.spec_key`][0] }}
             </p>
             <input v-model="spec.spec_value" type="text" placeholder="Giá trị"
-              class="w-[45%] border border-zinc-400 bg-white px-3 h-10" />
+              class="w-[45%] focus:outline-none focus:ring-1 focus:ring-blue-300 border border-zinc-300 rounded-lg py-1.5 px-2" />
             <p v-if="errors[`specs.${index}.spec_value`]" class="text-sm text-red-500 mt-1">
               {{ errors[`specs.${index}.spec_value`][0] }}
             </p>
@@ -267,8 +298,8 @@ onMounted(() => {
         <!-- Submit -->
         <div class="mt-10">
           <button @click="submit" :disabled="loading"
-            class="bg-[#2563EB] cursor-pointer hover:-translate-y-0.5 transition duration-300 text-white px-6 py-2 rounded-lg hover:opacity-90 disabled:opacity-50">
-            {{ loading ? 'Đang gửi...' : 'Thêm sản phẩm' }}
+            class="border border-[#2563EB] rounded-lg px-4 flex py-1.5 mt-1 bg-[#2563EB] hover:bg-blue-800 hover:border-blue-800 text-zinc-100 cursor-pointer transition duration-200 disabled:opacity-50">
+            <span class="text-[14px] font-medium">{{ loading ? 'Đang gửi...' : 'Thêm sản phẩm' }}</span>
           </button>
         </div>
       </div>

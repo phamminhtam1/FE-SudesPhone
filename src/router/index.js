@@ -46,6 +46,7 @@ import ListCategoryBlogPost from '@/views/Admin/CategoryBlogPost/ListCategoryBlo
 import EditBlog from '@/views/Admin/Blog/EditBlog.vue'
 import BLogPage from '@/views/BLogPage.vue'
 import BlogDetail from '@/views/BlogDetail.vue'
+import BlogCategoryPage from '@/views/BlogCategoryPage.vue'
 
 // Branch routes
 const branchRoutes = [
@@ -316,11 +317,17 @@ const FERouters = [
         component: BLogPage,
       },
       {
+        path: '/blog/category/:id',
+        name: 'blog-category',
+        component: BlogCategoryPage,
+        props: true,
+      },
+      {
         path: '/blog/:id',
         name: 'blog-detail',
         component: BlogDetail,
         props: true,
-      }
+      },
     ],
   },
   {

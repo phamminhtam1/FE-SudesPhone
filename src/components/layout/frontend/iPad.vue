@@ -39,7 +39,7 @@ onMounted(async () => {
   const category = await axios.get('/api/category/tree')
   console.log(category);
 
-  categories.value = category.data.category.find(c => c.slug === 'iphone')
+  categories.value = category.data.category.find(c => c.slug === 'ipad')
   category_children.value = categories.value.children
   if (category_children.value.length > 0) {
     activeTab.value = category_children.value[0].id
@@ -59,7 +59,7 @@ const tabClass = (tabId) => {
 
 <template>
   <div class="max-w-7xl mx-auto">
-    <h1 class="font-medium text-3xl uppercase mb-6 text-zinc-700 text-center">IPHONE</h1>
+    <h1 class="font-medium text-3xl uppercase mb-6 text-zinc-700 text-center">IPAD</h1>
     <!-- Tabs -->
     <div class="flex justify-center gap-6 text-sm font-medium mb-6">
       <span v-for="cat in category_children" :key="cat.id" @click="activeTab = cat.id" :class="tabClass(cat.id)">/ {{
@@ -67,30 +67,32 @@ const tabClass = (tabId) => {
     </div>
     <!-- Products: iPhone 14 -->
     <div v-if="activeTab" class="grid grid-cols-2 md:grid-cols-4 gap-5">
+      <div v-if="products.length === 0" class="col-span-full text-center py-8">
+        <p class="text-gray-500">Không có sản phẩm nào</p>
+      </div>
       <div v-for="prod in products.slice(0, 8)" :key="prod.prod_id" class="h-full">
         <router-link :to="{ name: 'product-detail', params: { id: prod.prod_id, productName: prod.name } }">
           <div class="flex justify-center group">
             <div class="w-full relative shadow-lg rounded-lg border-zinc-200 border">
-              <!-- Nhãn giảm giá -->
-              <span
-                class="text-white text-xs py-0.5 px-2 -ml-2 bg-gradient-to-b from-orange-700 to-orange-600 rounded-tr-xl rounded-br-xl rounded-tl-lg mt-1 inline-block w-fit">
-                <strong>Giảm {{ Math.floor((prod.price - prod.discount_price) / prod.price * 100) }}%</strong>
-              </span>
-
               <!-- Ảnh sản phẩm -->
-              <div class="flex flex-col -mt-6">
+              <div class="flex flex-col relative">
+                <!-- Nhãn giảm giá -->
+                <span
+                  class="absolute top-2 left-2 z-20 text-white text-xs py-0.5 px-2 bg-gradient-to-b from-orange-700 to-orange-600 rounded-tr-xl rounded-br-xl rounded-tl-lg inline-block w-fit">
+                  <strong>Giảm {{ Math.floor((prod.price - prod.discount_price) / prod.price * 100) }}%</strong>
+                </span>
                 <a href="#" class=" flex justify-center items-center">
-                  <img class="transform scale-95 group-hover:scale-100 duration-300 w-[250px] h-[310px]"
-                    :src="prod.images[1].img_url" alt="iPhone 12" />
+                  <img class="transform scale-95 group-hover:scale-100 duration-300 w-[250px] h-[290px] object-cover py-2"
+                    :src="prod.images[0].img_url" alt="iPhone 12" />
                 </a>
                 <!-- Thẻ thông tin -->
-                <div class="flex flex-col -mt-10 items-start z-10 space-y-1 ml-2">
+                <div class="absolute bottom-2 left-2 z-20 flex flex-col space-y-1">
                   <span
-                    class="text-white bg-gradient-to-b -ml-2 from-orange-700 to-orange-600 rounded-tr-lg rounded-br-lg text-xs px-2 flex items-center">
+                    class="text-white bg-gradient-to-b from-orange-700 to-orange-600 rounded-tr-lg rounded-br-lg text-xs px-2 flex items-center">
                     <strong>Trả góp 0%</strong>
                   </span>
                   <span
-                    class="text-white bg-gradient-to-b -ml-2 from-orange-700 to-orange-600 rounded-tr-lg rounded-br-lg text-xs px-2 flex items-center">
+                    class="text-white bg-gradient-to-b from-orange-700 to-orange-600 rounded-tr-lg rounded-br-lg text-xs px-2 flex items-center">
                     <strong>BH {{ prod.warranty_months }} tháng</strong>
                   </span>
                 </div>

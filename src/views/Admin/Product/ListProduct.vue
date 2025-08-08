@@ -345,7 +345,7 @@ onMounted(featchCategory)
                 {{ product.name }}
               </td>
               <td class="px-6 py-4">
-                <img v-if="product.images.length" :src="product.images[1].img_url" alt="product image"
+                <img v-if="product.images.length" :src="product.images[0].img_url" alt="product image"
                   class="w-full h-[110px] object-contain rounded-2xl" />
               </td>
               <td class="px-6 py-4 text-zinc-700 font-medium">

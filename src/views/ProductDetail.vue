@@ -274,7 +274,7 @@ async function addCart() {
       <div class="col-span-3 mt-6">
         <div class=" flex justify-center items-center h-105 overflow-hidden">
           <img
-            class="w-4/5 h-full object-content transition-all duration-200  ease-out transform hover:-translate-y-1.5"
+            class="w-4/5 h-full object-cover transition-all duration-200  ease-out transform hover:-translate-y-1.5"
             :class="{
               'slide-in-right': selectedIndex > 0,
               'slide-in-left': selectedIndex < 0
@@ -569,14 +569,8 @@ async function addCart() {
         <div class="relative overflow-hidden duration-400"
           :class="{ 'max-h-[650px]': !expanded, 'max-h-full': expanded }">
           <div class="space-y-4 mt-3 text-justify text-zinc-800">
-            <p>
-              {{ short_desc }}
-            </p>
-            <img src="https://bizweb.dktcdn.net/100/480/632/files/aads.jpg?v=1681768733956" alt=""
-              class="rounded-md w-full" />
-            <p>
-              {{ long_desc }}
-            </p>
+            <div v-html="short_desc"></div>
+            <div v-html="long_desc"></div>
           </div>
           <div v-if="!expanded" class="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-[#F7F7F7]">
           </div>
