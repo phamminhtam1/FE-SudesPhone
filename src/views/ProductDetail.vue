@@ -6,6 +6,10 @@ import Swal from 'sweetalert2';
 import axios from '@/plugins/axioscustomer'
 import Loading from '@/components/Loading.vue'
 import { useCartStore } from '@/stores/cart'
+import { useBlogPostStore } from '@/stores/blogpostfe';
+import { storeToRefs } from 'pinia';
+const blogPostStore = useBlogPostStore()
+const { hotblogposts } = storeToRefs(blogPostStore)
 
 const isLoading = ref(true)
 
@@ -203,6 +207,7 @@ onMounted(async () => {
     console.error(err)
     isLoading.value = false
   }
+  await blogPostStore.fetchHotBlogPost()
 })
 
 const decrease = () => {
@@ -240,6 +245,19 @@ const getColorClass = (colorName) => {
     'Hồng': 'bg-pink-500'
   }
   return colorMap[colorName] || 'bg-gray-400'
+}
+
+const formatVietnameseDate = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  const options = {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }
+  return date.toLocaleDateString('vi-VN', options)
 }
 
 const cartStore = useCartStore()
@@ -605,63 +623,17 @@ async function addCart() {
         </div>
         <h1
           class="text-xl font-medium text-zinc-800 pl-3 mt-10 uppercase hover:text-red-700 cursor-pointer duration-200">
-          Tin tức nổi
-          bật
+          Tin tức nổi bật
         </h1>
         <div class="mt-3 pl-4 flex flex-col gap-3">
-          <div class="flex gap-3">
-            <img src="https://bizweb.dktcdn.net/100/480/632/articles/010.jpg?v=1682692969433"
+          <div class="flex gap-3" v-for="hotblogpost in hotblogposts" :key="hotblogpost.post_id">
+            <img :src="hotblogpost.thumbnail_url"
               class="w-[100px] h-[53px] rounded-lg" alt="">
             <div class="flex flex-col gap-1">
               <a href="" class="hover:text-red-700 duration-200 text-sm line-clamp-2">
-                'Thò thụt': iPhone đã đúng khi không đụng đến tính năng này
-                suốt những năm qua bac assdasd
+                {{ hotblogpost.title }}
               </a>
-              <p class="text-xs italic">28/04/2023</p>
-            </div>
-          </div>
-          <div class="flex gap-3">
-            <img src="https://bizweb.dktcdn.net/100/480/632/articles/010.jpg?v=1682692969433"
-              class="w-[100px] h-[53px] rounded-lg" alt="">
-            <div class="flex flex-col gap-1">
-              <a href="" class="hover:text-red-700 duration-200 text-sm line-clamp-2">
-                'Thò thụt': iPhone đã đúng khi không đụng đến tính năng này
-                suốt những năm qua bac assdasd
-              </a>
-              <p class="text-xs italic">28/04/2023</p>
-            </div>
-          </div>
-          <div class="flex gap-3">
-            <img src="https://bizweb.dktcdn.net/100/480/632/articles/010.jpg?v=1682692969433"
-              class="w-[100px] h-[53px] rounded-lg" alt="">
-            <div class="flex flex-col gap-1">
-              <a href="" class="hover:text-red-700 duration-200 text-sm line-clamp-2">
-                'Thò thụt': iPhone đã đúng khi không đụng đến tính năng này
-                suốt những năm qua bac assdasd
-              </a>
-              <p class="text-xs italic">28/04/2023</p>
-            </div>
-          </div>
-          <div class="flex gap-3">
-            <img src="https://bizweb.dktcdn.net/100/480/632/articles/010.jpg?v=1682692969433"
-              class="w-[100px] h-[53px] rounded-lg" alt="">
-            <div class="flex flex-col gap-1">
-              <a href="" class="hover:text-red-700 duration-200 text-sm line-clamp-2">
-                'Thò thụt': iPhone đã đúng khi không đụng đến tính năng này
-                suốt những năm qua bac assdasd
-              </a>
-              <p class="text-xs italic">28/04/2023</p>
-            </div>
-          </div>
-          <div class="flex gap-3">
-            <img src="https://bizweb.dktcdn.net/100/480/632/articles/010.jpg?v=1682692969433"
-              class="w-[100px] h-[53px] rounded-lg" alt="">
-            <div class="flex flex-col gap-1">
-              <a href="" class="hover:text-red-700 duration-200 text-sm line-clamp-2">
-                'Thò thụt': iPhone đã đúng khi không đụng đến tính năng này
-                suốt những năm qua bac assdasd
-              </a>
-              <p class="text-xs italic">28/04/2023</p>
+              <p class="text-xs italic">{{formatVietnameseDate(hotblogpost.created_at)}}</p>
             </div>
           </div>
         </div>

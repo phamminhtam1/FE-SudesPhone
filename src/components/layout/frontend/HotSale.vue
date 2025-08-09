@@ -76,7 +76,7 @@ const carouselBreakpoints = {
               <div class="bg-gray-50 rounded-xl w-full max-w-[290px] relative">
                 <!-- Nhãn giảm giá -->
                 <span
-                  class="text-white text-xs py-0.5 px-2 -ml-2 bg-gradient-to-b from-orange-700 to-orange-600 rounded-tr-xl rounded-br-xl rounded-tl-lg mt-1 inline-block w-fit">
+                  class="absolute top-0 z-20 text-white text-xs py-0.5 px-2 -ml-2 bg-gradient-to-b from-orange-700 to-orange-600 rounded-tr-xl rounded-br-xl rounded-tl-lg mt-1 inline-block w-fit">
                   <strong>Giảm {{ Math.floor((prod.price - prod.discount_price) / prod.price * 100) }} %</strong>
                 </span>
 
@@ -84,7 +84,7 @@ const carouselBreakpoints = {
                 <div class="flex flex-col -mt-6">
                   <a href="#">
                     <div class="flex justify-center">
-                      <img class="transform scale-95 group-hover:scale-100 duration-300 w-[221px] h-[276px]"
+                      <img class="transform scale-95 group-hover:scale-100 duration-300 w-[221px] h-[276px] py-5"
                         :src="prod.images[0].img_url" alt="iPhone 12" />
                     </div>
                   </a>
