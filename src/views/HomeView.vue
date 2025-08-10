@@ -4,6 +4,9 @@ import HotSale from '@/components/layout/frontend/HotSale.vue';
 import TopCategories from '@/components/layout/frontend/TopCategories.vue';
 import iPhone from '@/components/layout/frontend/iPhone.vue';
 import iPad from '@/components/layout/frontend/iPad.vue';
+import NewProduct from '@/components/layout/frontend/NewProduct.vue';
+import MacBook from '@/components/layout/frontend/MacBook.vue';
+import AppleWatch from '@/components/layout/frontend/AppleWatch.vue';
 </script>
 
 <template>
@@ -67,8 +70,13 @@ import iPad from '@/components/layout/frontend/iPad.vue';
     </section>
     <HotSale />
     <TopCategories />
-    <iPhone class="mb-20" />
+    <iPhone class="mb-10" />
     <iPad />
-    <div class="mb-7"></div>
+    <div class="mb-10"></div>
+    <NewProduct/>
+    <div class="mb-10"></div>
+    <MacBook/>
+    <div class="mb-10"></div>
+    <AppleWatch/>
   </main>
 </template>
