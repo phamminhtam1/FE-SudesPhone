@@ -47,6 +47,10 @@ import EditBlog from '@/views/Admin/Blog/EditBlog.vue'
 import BLogPage from '@/views/BLogPage.vue'
 import BlogDetail from '@/views/BlogDetail.vue'
 import BlogCategoryPage from '@/views/BlogCategoryPage.vue'
+import WebsiteIntroduction from '@/views/Admin/Website/Website-Introduction.vue'
+import IntroductionPage from '@/views/IntroductionPage.vue'
+import WebsitePolicy from '@/views/Admin/Website/Website-Policy.vue'
+import PolicyPage from '@/views/PolicyPage.vue'
 
 // Branch routes
 const branchRoutes = [
@@ -270,6 +274,21 @@ const blogRouters = [
   },
 ]
 
+const websiteRouters = [
+  {
+    path: '/admin/website/introduction',
+    name: 'introduction',
+    component: WebsiteIntroduction,
+    meta: { requiresAuth: true, name_page: 'Quản lý giới thiệu Website' },
+  },
+  {
+    path: '/admin/website/policy',
+    name: 'policy',
+    component: WebsitePolicy,
+    meta: { requiresAuth: true, name_page: 'Quản lý Chính sách Website' },
+  },
+]
+
 const FERouters = [
   {
     path: '/',
@@ -328,6 +347,18 @@ const FERouters = [
         component: BlogDetail,
         props: true,
       },
+      {
+        path: '/introduction',
+        name: 'introduct',
+        component: IntroductionPage,
+        props: true,
+      },
+      {
+        path: '/policy',
+        name: 'website-policy',
+        component: PolicyPage,
+        props: true,
+      },
     ],
   },
   {
@@ -382,6 +413,7 @@ const router = createRouter({
     ...customerRouters,
     ...blogRouters,
     ...FERouters,
+    ...websiteRouters,
   ],
   scrollBehavior(to, from, savedPosition) {
     // Nếu có savedPosition (reload hoặc back/forward), trả về vị trí đó

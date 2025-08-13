@@ -3,7 +3,7 @@ import axios from '@/plugins/axioscustomer'
 import { ref } from 'vue';
 import { onMounted } from 'vue';
 import { useAuth } from '@/composables/useAuth';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useCartStore } from '@/stores/cart'
 import { useCategoryStore } from '@/stores/category';
 import { storeToRefs } from 'pinia'
@@ -15,6 +15,7 @@ defineOptions({
 
 const { isAuthenticated, logout } = useAuth()
 const router = useRouter()
+const route = useRoute()
 
 const isMobileMenuOpen = ref(false)
 const isAccountDropdownOpen = ref(false)
@@ -54,6 +55,23 @@ onMounted(async () => {
   }
 })
 
+function isActiveByName(name) {
+  return route.name === name
+}
+
+function isActiveCategory(category) {
+  if (route.name !== 'fe-category') return false
+  const currentId = String(route.params.id || '')
+  function hasDescendantId(cat, id) {
+    if (!cat || !cat.children) return false
+    for (const child of cat.children) {
+      if (String(child.id) === id) return true
+      if (hasDescendantId(child, id)) return true
+    }
+    return false
+  }
+  return String(category.id) === currentId || hasDescendantId(category, currentId)
+}
 </script>
 
 <template>
@@ -354,16 +372,18 @@ onMounted(async () => {
         <div class="max-w-7xl mx-auto px-4">
           <!-- Desktop Navigation -->
           <div class="hidden md:flex items-center justify-between h-10">
-            <router-link :to="{name: 'home'}" class="relative group px-2 py-1 text-white">
+            <router-link :to="{ name: 'home' }" class="relative group px-2 py-1 text-white">
               Trang chủ
               <span
-                class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[0px] h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"></span>
+                class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"
+                :class="{ 'w-[40px]': isActiveByName('home'), 'w-[0px]': !isActiveByName('home') }"></span>
             </router-link>
-            <a href="#" class="relative group px-2 py-1 text-white">
+            <router-link :to="{ name: 'introduct' }" class="relative group px-2 py-1 text-white">
               Giới thiệu
               <span
-                class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[0px] h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"></span>
-            </a>
+                class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"
+                :class="{ 'w-[40px]': isActiveByName('introduct'), 'w-[0px]': !isActiveByName('introduct') }"></span>
+            </router-link>
             <div class="relative group " v-for="cate in category_tree" :key="cate.id">
               <router-link :to="{ name: 'fe-category', params: { id: cate.id, categoryName: cate.name } }"
                 class="relative group flex items-center px-2 py-1 text-white">
@@ -373,7 +393,8 @@ onMounted(async () => {
                     d="M5.23 7.21a.75.75 0 011.06 0L10 10.94l3.72-3.73a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.23 8.27a.75.75 0 010-1.06z" />
                 </svg>
                 <span
-                  class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[0px] h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"></span>
+                  class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"
+                  :class="{ 'w-[40px]': isActiveCategory(cate), 'w-[0px]': !isActiveCategory(cate) }"></span>
               </router-link>
               <div class="absolute left-1/2 -translate-x-1/2 top-full h-4 w-full z-40"></div>
               <div v-if="cate.children && cate.children.length"
@@ -395,20 +416,23 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
-            <a href="#" class="relative group px-2 py-1 text-white">
+            <router-link :to="{ name: 'website-policy' }" class="relative group px-2 py-1 text-white">
               Chính sách
               <span
-                class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[0px] h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"></span>
-            </a>
-            <router-link :to="{name: 'blog-all'}" class="relative group px-2 py-1 text-white">
+                class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"
+                :class="{ 'w-[40px]': route.name === 'website-policy', 'w-[0px]': route.name !== 'website-policy' }"></span>
+            </router-link>
+            <router-link :to="{ name: 'blog-all' }" class="relative group px-2 py-1 text-white">
               Tin tức
               <span
-                class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[0px] h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"></span>
+                class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"
+                :class="{ 'w-[40px]': isActiveByName('blog-all'), 'w-[0px]': !isActiveByName('blog-all') }"></span>
             </router-link>
             <a href="#" class="relative group px-2 py-1 text-white">
               Liên hệ
               <span
-                class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[0px] h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"></span>
+                class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"
+                :class="{ 'w-[40px]': route.name === 'contact', 'w-[0px]': route.name !== 'contact' }"></span>
             </a>
           </div>
 

@@ -10,25 +10,23 @@ const category_children = ref([])
 const categories = ref([])
 const activeTab = ref('')
 
+// Hàm shuffle để xáo trộn mảng sản phẩm
+const shuffleArray = (array) => {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
 
 watch(activeTab, async (newTab) => {
   if (newTab) {
     try {
       const product = await axios.get(`/api/category/product/${newTab}`)
       const allProducts = product.data.product.data
-      const uniqueProducts = []
-      const categoryCounts = {}
-      for (const prod of allProducts) {
-        const catId = prod.cat_id
-        if (!categoryCounts[catId]) {
-          categoryCounts[catId] = 0
-        }
-        if (categoryCounts[catId] < 3) {
-          categoryCounts[catId]++
-          uniqueProducts.push(prod)
-        }
-      }
-      products.value = uniqueProducts
+      // Xáo trộn sản phẩm trước khi gán
+      products.value = shuffleArray(allProducts)
     } catch (error) {
       console.error('Error fetching products:', error)
     }
@@ -43,7 +41,8 @@ onMounted(async () => {
   if (category_children.value.length > 0) {
     activeTab.value = category_children.value[0].id
     const product = await axios.get(`/api/category/product/${activeTab.value}`)
-    products.value = product.data.product.data
+    // Xáo trộn sản phẩm trước khi gán
+    products.value = shuffleArray(product.data.product.data)
   }
 })
 
@@ -77,7 +76,7 @@ const tabClass = (tabId) => {
               <div class="flex flex-col relative">
                 <!-- Nhãn giảm giá -->
                 <span
-                  class="absolute top-2 left-2 z-20 text-white text-xs py-0.5 px-2 bg-gradient-to-b from-orange-700 to-orange-600 rounded-tr-xl rounded-br-xl rounded-tl-lg inline-block w-fit">
+                  class="absolute top-1 -left-1 z-20 text-white text-xs py-0.5 px-2 bg-gradient-to-b from-orange-700 to-orange-600 rounded-tr-xl rounded-br-xl rounded-tl-lg inline-block w-fit">
                   <strong>Giảm {{ Math.floor((prod.price - prod.discount_price) / prod.price * 100) }}%</strong>
                 </span>
                 <a href="#" class=" flex justify-center items-center">
@@ -85,7 +84,7 @@ const tabClass = (tabId) => {
                     :src="prod.images[0].img_url" alt="iPhone 12" />
                 </a>
                 <!-- Thẻ thông tin -->
-                <div class="absolute bottom-2 left-2 z-20 flex flex-col space-y-1">
+                <div class="absolute bottom-2 left-0 z-20 flex flex-col space-y-1">
                   <span
                     class="text-white bg-gradient-to-b from-orange-700 to-orange-600 rounded-tr-lg rounded-br-lg text-xs px-2 flex items-center">
                     <strong>Trả góp 0%</strong>
