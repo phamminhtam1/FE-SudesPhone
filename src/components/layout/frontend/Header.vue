@@ -1,16 +1,16 @@
 <script setup>
 import axios from '@/plugins/axioscustomer'
-import { ref } from 'vue';
-import { onMounted } from 'vue';
-import { useAuth } from '@/composables/useAuth';
-import { useRouter, useRoute } from 'vue-router';
+import { ref, watch } from 'vue'
+import { onMounted } from 'vue'
+import { useAuth } from '@/composables/useAuth'
+import { useRouter, useRoute } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
-import { useCategoryStore } from '@/stores/category';
+import { useCategoryStore } from '@/stores/category'
 import { storeToRefs } from 'pinia'
 
 // Define component name to fix linter error
 defineOptions({
-  name: 'FrontendHeader'
+  name: 'FrontendHeader',
 })
 
 const { isAuthenticated, logout } = useAuth()
@@ -72,40 +72,145 @@ function isActiveCategory(category) {
   }
   return String(category.id) === currentId || hasDescendantId(category, currentId)
 }
+
+//search
+const isSearch = ref('')
+const isSearchFocused = ref(false)
+const dataSearch = ref([])
+
+const handleSearchFocus = () => {
+  isSearchFocused.value = true
+}
+
+const handleSearchBlur = () => {
+  isSearchFocused.value = false
+}
+
+async function reSearchProduct() {
+  try {
+    const res = await axios.get(`/api/product?page=1&per_page=4&keyword=${isSearch.value}`)
+    dataSearch.value = res.data.product.data
+  } catch {
+    console.log()
+  }
+}
+
+const goProductbySearch = (prod_id) => {
+  router.push(`/product-detail/${prod_id}`)
+  isSearchFocused.value = false
+  isSearch.value = ''
+}
+
+watch([isSearch], async () => {
+  await reSearchProduct()
+})
 </script>
 
 <template>
   <header class="header">
     <div class="main-header">
       <div class="bg-gradient-to-b from-zinc-900 to-zinc-800 text-white">
-        <div class="max-w-7xl mx-auto gap-8  flex items-center justify-between h-16">
+        <div class="max-w-7xl mx-auto gap-8 flex items-center justify-between h-16">
           <!-- Logo -->
           <div class="text-2xl font-bold">
             <router-link :to="{ name: 'home' }">
               <img width="200" height="26"
                 src="//bizweb.dktcdn.net/100/480/632/themes/900313/assets/logo.png?1746173377751"
-                class="w-[280px] h-6 md:h-8">
+                class="w-[280px] h-6 md:h-8" />
             </router-link>
           </div>
 
           <!-- Search Bar - Hidden on mobile -->
-          <div class="hidden md:block ml-2 mr-1 flex-1 max-w-xl">
-            <form action="seach" method="get" class="flex w-100">
-              <input type="text"
-                class="flex-1 px-2 py-1.5 bg-white border border-gray-300 border-r-0 rounded-l-md placeholder-gray-500 text-gray-800 outline-none focus:outline-none"
-                placeholder="Tìm sản phẩm...">
+          <div class="hidden md:block ml-2 mr-1 max-w-xl flex-col relative">
+            <div class="flex w-100">
+              <input type="text" v-model="isSearch" @focus="handleSearchFocus" @blur="handleSearchBlur"
+                class="flex-1 px-2 py-1 bg-white border border-gray-200 border-r-0 rounded-l-md placeholder-gray-500 text-gray-800 outline-none focus:outline-none"
+                placeholder="Tìm sản phẩm..." />
+              <label class="absolute right-12 top-0 cursor-pointer hover:bg-zinc-300 px-4 py-1 pb-2 hover:text-white">
+                <input type="file" class="hidden" />
+                <svg viewBox="0 -2 32 32" version="1.1" width="22" height="22" xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
+                  fill="fill-current">
+                  <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+                    <g id="Icon-Set" sketch:type="MSLayerGroup" transform="translate(-256.000000, -465.000000)"
+                      fill="#000000">
+                      <path
+                        d="M272,487 C268.687,487 266,484.313 266,481 C266,477.687 268.687,475 272,475 C275.313,475 278,477.687 278,481 C278,484.313 275.313,487 272,487 L272,487 Z M272,473 C267.582,473 264,476.582 264,481 C264,485.418 267.582,489 272,489 C276.418,489 280,485.418 280,481 C280,476.582 276.418,473 272,473 L272,473 Z M286,489 C286,490.104 285.104,491 284,491 L260,491 C258.896,491 258,490.104 258,489 L258,473 C258,471.896 258.896,471 260,471 L264,471 L265,469 C265.707,467.837 265.896,467 267,467 L277,467 C278.104,467 278.293,467.837 279,469 L280,471 L284,471 C285.104,471 286,471.896 286,473 L286,489 L286,489 Z M284,469 L281,469 L280,467 C279.411,465.837 279.104,465 278,465 L266,465 C264.896,465 264.53,465.954 264,467 L263,469 L260,469 C257.791,469 256,470.791 256,473 L256,489 C256,491.209 257.791,493 260,493 L284,493 C286.209,493 288,491.209 288,489 L288,473 C288,470.791 286.209,469 284,469 L284,469 Z"
+                        id="camera" sketch:type="MSShapeGroup"> </path>
+                    </g>
+                  </g>
+                </svg>
+              </label>
               <button type="submit"
-                class="px-4 py-1.5 bg-white border border-gray-300 border-l-0 rounded-r-md outline-none focus:outline-none cursor-pointer">
-                <span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="black" class="bi bi-search"
-                    viewBox="0 0 16 16">
-                    <path
-                      d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z">
-                    </path>
-                  </svg>
-                </span>
+                class="px-4 py-1 bg-gradient-to-b from-zinc-900 to-zinc-700 rounded-r-md outline-none focus:outline-none cursor-pointer hover:from-red-500 hover:to-red-400 hover:border-red-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="white" class=""
+                  viewBox="0 0 16 16">
+                  <path
+                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z">
+                  </path>
+                </svg>
               </button>
-            </form>
+            </div>
+            <div v-show="isSearch || isSearchFocused" class="absolute top-10 z-50 w-full">
+              <div class="border border-zinc-300 px-3 py-2 rounded-lg bg-white text-black">
+                <div class="flex items-center gap-1 border-b border-b-zinc-300 pb-2">
+                  <svg width="14px" height="14px" xmlns="http://www.w3.org/2000/svg" version="1.1"
+                    viewBox="-22 0 134 134.06032">
+                    <g>
+                      <path
+                        d="M 23.347656 134.058594 C 8.445312 84.953125 39.933594 67.023438 39.933594 67.023438 C 37.730469 93.226562 52.621094 113.640625 52.621094 113.640625 C 58.097656 111.988281 68.550781 104.265625 68.550781 104.265625 C 68.550781 113.640625 63.035156 134.046875 63.035156 134.046875 C 63.035156 134.046875 82.34375 119.117188 88.421875 94.320312 C 94.492188 69.523438 76.859375 44.628906 76.859375 44.628906 C 77.921875 62.179688 71.984375 79.441406 60.351562 92.628906 C 60.933594 91.957031 61.421875 91.210938 61.796875 90.402344 C 63.886719 86.222656 67.242188 75.359375 65.277344 50.203125 C 62.511719 14.890625 30.515625 0 30.515625 0 C 33.273438 21.515625 25.003906 26.472656 5.632812 67.3125 C -13.738281 108.144531 23.347656 134.058594 23.347656 134.058594 Z M 23.347656 134.058594"
+                        style="stroke: none; fill-rule: nonzero; fill: #d6072f; fill-opacity: 1"></path>
+                    </g>
+                  </svg>
+                  <h1 class="text-[12px] font-medium uppercase text-red-400">
+                    Tìm kiếm nhiều nhất
+                  </h1>
+                </div>
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <span
+                    class="px-2 py-1 bg-zinc-200 text-[12px] text-zinc-700 rounded-lg font-medium hover:bg-black hover:text-white cursor-pointer whitespace-nowrap">
+                    iPhone 8
+                  </span>
+                  <span
+                    class="px-2 py-1 bg-zinc-200 text-[12px] text-zinc-700 rounded-lg font-medium hover:bg-black hover:text-white cursor-pointer whitespace-nowrap">
+                    iPhone 11
+                  </span>
+                  <span
+                    class="px-2 py-1 bg-zinc-200 text-[12px] text-zinc-700 rounded-lg font-medium hover:bg-black hover:text-white cursor-pointer whitespace-nowrap">
+                    iPad Gen 9
+                  </span>
+                  <span
+                    class="px-2 py-1 bg-zinc-200 text-[12px] text-zinc-700 rounded-lg font-medium hover:bg-black hover:text-white cursor-pointer whitespace-nowrap">
+                    Airspod
+                  </span>
+                  <span
+                    class="px-2 py-1 bg-zinc-200 text-[12px] text-zinc-700 rounded-lg font-medium hover:bg-black hover:text-white cursor-pointer whitespace-nowrap">
+                    Sạc nhanh
+                  </span>
+                  <span
+                    class="px-2 py-1 bg-zinc-200 text-[12px] text-zinc-700 rounded-lg font-medium hover:bg-black hover:text-white cursor-pointer whitespace-nowrap">
+                    Cáp Type C
+                  </span>
+                </div>
+                <div v-show="isSearch" v-for="data in dataSearch" :key="data.prod_id">
+                  <div @click="goProductbySearch(data.prod_id)"
+                    class="flex items-center mt-2 gap-2 border-b border-zinc-200 hover:bg-zinc-100 p-2 cursor-pointer">
+                    <img :src="data.images[0].img_url" alt="" class="w-14 h-14 border border-zinc-200 rounded-lg" />
+                    <div class="flex flex-col justify-between gap-1">
+                      <span class="text-[13px] text-zinc-600 font-medium line-clamp-2">{{ data.name }} - Chính hãng VN/A
+                      </span>
+                      <div class="flex items-center gap-2">
+                        <span class="text-[14px] text-red-800 font-medium">{{ data.discount_price }}đ</span>
+                        <span class="text-[12px] line-through text-zinc-400 font-medium">{{ data.price }}đ</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <span
+                  class="flex justify-center py-2 text-[14px] hover:bg-black hover:text-white cursor-pointer rounded-lg text-red-600 font-medium mt-1">Xem
+                  tất cả</span>
+              </div>
+            </div>
           </div>
 
           <!-- Right Section -->
@@ -210,7 +315,8 @@ function isActiveCategory(category) {
                         <path fill-rule="evenodd"
                           d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z">
                         </path>
-                      </svg> <span>Đăng xuất</span>
+                      </svg>
+                      <span>Đăng xuất</span>
                     </div>
                   </div>
                   <div v-else>
@@ -224,7 +330,8 @@ function isActiveCategory(category) {
                           <path fill-rule="evenodd"
                             d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z">
                           </path>
-                        </svg> <span>Đăng nhập</span>
+                        </svg>
+                        <span>Đăng nhập</span>
                       </div>
                     </router-link>
                     <router-link :to="{ name: 'register-customer' }">
@@ -237,7 +344,8 @@ function isActiveCategory(category) {
                           <path fill-rule="evenodd"
                             d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z">
                           </path>
-                        </svg> <span>Đăng ký</span>
+                        </svg>
+                        <span>Đăng ký</span>
                       </div>
                     </router-link>
                   </div>
@@ -247,7 +355,8 @@ function isActiveCategory(category) {
                       <path
                         d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z">
                       </path>
-                    </svg> <span>Danh sách yêu thích (0)</span>
+                    </svg>
+                    <span>Danh sách yêu thích (0)</span>
                   </div>
                   <div class="flex items-center gap-2 px-3 py-1 hover:bg-black hover:text-white rounded-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -255,7 +364,8 @@ function isActiveCategory(category) {
                       <path
                         d="M11 5.466V4H5a4 4 0 0 0-3.584 5.777.5.5 0 1 1-.896.446A5 5 0 0 1 5 3h6V1.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192Zm3.81.086a.5.5 0 0 1 .67.225A5 5 0 0 1 11 13H5v1.466a.25.25 0 0 1-.41.192l-2.36-1.966a.25.25 0 0 1 0-.384l2.36-1.966a.25.25 0 0 1 .41.192V12h6a4 4 0 0 0 3.585-5.777.5.5 0 0 1 .225-.67Z">
                       </path>
-                    </svg> <span>So sánh sản phẩm (0)</span>
+                    </svg>
+                    <span>So sánh sản phẩm (0)</span>
                   </div>
                 </div>
               </div>
@@ -287,15 +397,20 @@ function isActiveCategory(category) {
 
     <!-- Mobile Menu -->
     <div v-show="isMobileMenuOpen" class="md:hidden bg-zinc-800 text-white transition-all duration-300 ease-in-out"
-      :class="{ 'max-h-screen py-2': isMobileMenuOpen, 'max-h-0 py-0': !isMobileMenuOpen, 'overflow-hidden': true }">
+      :class="{
+        'max-h-screen py-2': isMobileMenuOpen,
+        'max-h-0 py-0': !isMobileMenuOpen,
+        'overflow-hidden': true,
+      }">
       <div class="px-4 py-2">
         <form action="seach" method="get" class="flex w-full mb-4">
           <input type="text"
             class="flex-1 px-2 py-2 bg-white border border-gray-300 border-r-0 rounded-l-md placeholder-gray-500 text-gray-800 outline-none focus:outline-none"
-            placeholder="Tìm sản phẩm...">
+            placeholder="Tìm sản phẩm..." />
           <button type="submit"
-            class="px-4 py-2 bg-white border border-gray-300 border-l-0 rounded-r-md outline-none focus:outline-none"><i
-              class="fas fa-search text-gray-600"></i></button>
+            class="px-4 py-2 bg-white border border-gray-300 border-l-0 rounded-r-md outline-none focus:outline-none">
+            <i class="fas fa-search text-gray-600"></i>
+          </button>
         </form>
         <div class="space-y-2">
           <a href="/he-thong-cua-hang" class="flex items-center py-2 px-3 hover:bg-zinc-700 rounded-md">
@@ -322,8 +437,10 @@ function isActiveCategory(category) {
               </svg>
             </div>
             <div v-show="isAccountDropdownOpen"
-              class="pl-8 pt-2 space-y-1 transition-all duration-300 ease-in-out transform origin-top"
-              :class="{ 'max-h-screen opacity-100 scale-y-100': isAccountDropdownOpen, 'max-h-0 opacity-0 scale-y-0 overflow-hidden': !isAccountDropdownOpen }">
+              class="pl-8 pt-2 space-y-1 transition-all duration-300 ease-in-out transform origin-top" :class="{
+                'max-h-screen opacity-100 scale-y-100': isAccountDropdownOpen,
+                'max-h-0 opacity-0 scale-y-0 overflow-hidden': !isAccountDropdownOpen,
+              }">
               <div v-if="isAuthenticated">
                 <router-link :to="{ name: 'profile-customer' }"
                   class="flex items-center py-2 px-3 hover:bg-zinc-700 rounded-md">
@@ -382,9 +499,12 @@ function isActiveCategory(category) {
               Giới thiệu
               <span
                 class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"
-                :class="{ 'w-[40px]': isActiveByName('introduct'), 'w-[0px]': !isActiveByName('introduct') }"></span>
+                :class="{
+                  'w-[40px]': isActiveByName('introduct'),
+                  'w-[0px]': !isActiveByName('introduct'),
+                }"></span>
             </router-link>
-            <div class="relative group " v-for="cate in category_tree" :key="cate.id">
+            <div class="relative group" v-for="cate in category_tree" :key="cate.id">
               <router-link :to="{ name: 'fe-category', params: { id: cate.id, categoryName: cate.name } }"
                 class="relative group flex items-center px-2 py-1 text-white">
                 {{ cate.name }}
@@ -394,7 +514,10 @@ function isActiveCategory(category) {
                 </svg>
                 <span
                   class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"
-                  :class="{ 'w-[40px]': isActiveCategory(cate), 'w-[0px]': !isActiveCategory(cate) }"></span>
+                  :class="{
+                    'w-[40px]': isActiveCategory(cate),
+                    'w-[0px]': !isActiveCategory(cate),
+                  }"></span>
               </router-link>
               <div class="absolute left-1/2 -translate-x-1/2 top-full h-4 w-full z-40"></div>
               <div v-if="cate.children && cate.children.length"
@@ -405,9 +528,9 @@ function isActiveCategory(category) {
                       {{ cate_children.name }}
                     </router-link>
                   </div>
-                  <div class=" mt-4 flex flex-col gap-2">
+                  <div class="mt-4 flex flex-col gap-2">
                     <a v-for="sub_child in cate_children.children" :key="sub_child.id" href="#"
-                      class="block text-sm text-gray-700 hover:text-blue-600">
+                      class="block text-sm text-gray-700 hover:text-red-600">
                       <router-link :to="{ name: 'fe-category', params: { id: sub_child.id } }">
                         {{ sub_child.name }}
                       </router-link>
@@ -420,19 +543,28 @@ function isActiveCategory(category) {
               Chính sách
               <span
                 class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"
-                :class="{ 'w-[40px]': route.name === 'website-policy', 'w-[0px]': route.name !== 'website-policy' }"></span>
+                :class="{
+                  'w-[40px]': route.name === 'website-policy',
+                  'w-[0px]': route.name !== 'website-policy',
+                }"></span>
             </router-link>
             <router-link :to="{ name: 'blog-all' }" class="relative group px-2 py-1 text-white">
               Tin tức
               <span
                 class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"
-                :class="{ 'w-[40px]': isActiveByName('blog-all'), 'w-[0px]': !isActiveByName('blog-all') }"></span>
+                :class="{
+                  'w-[40px]': isActiveByName('blog-all'),
+                  'w-[0px]': !isActiveByName('blog-all'),
+                }"></span>
             </router-link>
             <a href="#" class="relative group px-2 py-1 text-white">
               Liên hệ
               <span
                 class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] bg-white transition-all duration-300 ease-out group-hover:w-[40px]"
-                :class="{ 'w-[40px]': route.name === 'contact', 'w-[0px]': route.name !== 'contact' }"></span>
+                :class="{
+                  'w-[40px]': route.name === 'contact',
+                  'w-[0px]': route.name !== 'contact',
+                }"></span>
             </a>
           </div>
 
@@ -458,7 +590,6 @@ function isActiveCategory(category) {
   </header>
 </template>
 
-
 <style scoped>
 /* Custom scrollbar for mobile navigation */
 .header-menu .overflow-x-auto::-webkit-scrollbar {
@@ -470,12 +601,12 @@ function isActiveCategory(category) {
 }
 
 .header-menu .overflow-x-auto::-webkit-scrollbar-thumb {
-  background: #4B5563;
+  background: #4b5563;
   border-radius: 2px;
 }
 
 .header-menu .overflow-x-auto::-webkit-scrollbar-thumb:hover {
-  background: #6B7280;
+  background: #6b7280;
 }
 
 /* Smooth transitions */

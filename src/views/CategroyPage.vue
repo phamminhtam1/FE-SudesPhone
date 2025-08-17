@@ -174,7 +174,7 @@ const setSort = (value) => {
               <!-- Tên sản phẩm và giá -->
               <div class="flex flex-col mt-4 px-3">
                 <a href="#">
-                  <h3 class="text-[16px] text-zinc-700 font-medium hover:text-red-500 duration-200 h-[48px]">
+                  <h3 class="text-[16px] text-zinc-700 font-medium hover:text-red-500 duration-200 h-[48px] line-clamp-2">
                     {{ prod.name }} {{prod.specs.find(s => s.spec_key === 'Màu sắc')?.spec_value}} - Chính hãng VN/A
                   </h3>
                 </a>

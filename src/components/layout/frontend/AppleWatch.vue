@@ -23,7 +23,7 @@ watch(activeTab, async (newTab) => {
         if (!categoryCounts[catId]) {
           categoryCounts[catId] = 0
         }
-        if (categoryCounts[catId] < 3) {
+        if (categoryCounts[catId] < 8) {
           categoryCounts[catId]++
           uniqueProducts.push(prod)
         }
@@ -71,13 +71,13 @@ const tabClass = (tabId) => {
       </div>
       <div v-for="prod in products.slice(0, 8)" :key="prod.prod_id" class="h-full">
         <router-link :to="{ name: 'product-detail', params: { id: prod.prod_id, productName: prod.name } }">
-          <div class="flex justify-center group">
-            <div class="w-full relative shadow-lg rounded-lg border-zinc-200 border">
+          <div class="flex justify-center group h-full">
+            <div class="w-full relative shadow-lg rounded-lg border-zinc-200 border h-full flex flex-col">
               <!-- Ảnh sản phẩm -->
               <div class="flex flex-col relative">
                 <!-- Nhãn giảm giá -->
                 <span
-                  class="absolute top-2 left-2 z-20 text-white text-xs py-0.5 px-2 bg-gradient-to-b from-orange-700 to-orange-600 rounded-tr-xl rounded-br-xl rounded-tl-lg inline-block w-fit">
+                  class="absolute top-1 -left-1 z-20 text-white text-xs py-0.5 px-2 bg-gradient-to-b from-orange-700 to-orange-600 rounded-tr-xl rounded-br-xl rounded-tl-lg inline-block w-fit">
                   <strong>Giảm {{ Math.floor((prod.price - prod.discount_price) / prod.price * 100) }}%</strong>
                 </span>
                 <a href="#" class=" flex justify-center items-center">
@@ -85,7 +85,7 @@ const tabClass = (tabId) => {
                     :src="prod.images[0].img_url" alt="iPhone 12" />
                 </a>
                 <!-- Thẻ thông tin -->
-                <div class="absolute bottom-2 left-2 z-20 flex flex-col space-y-1">
+                <div class="absolute bottom-2 left-0 z-20 flex flex-col space-y-1">
                   <span
                     class="text-white bg-gradient-to-b from-orange-700 to-orange-600 rounded-tr-lg rounded-br-lg text-xs px-2 flex items-center">
                     <strong>Trả góp 0%</strong>
@@ -98,9 +98,9 @@ const tabClass = (tabId) => {
               </div>
 
               <!-- Tên sản phẩm và giá -->
-              <div class="flex flex-col mt-4 px-3">
+              <div class="flex flex-col mt-4 px-3 flex-1">
                 <a href="#">
-                  <h3 class="text-[16px] text-zinc-700 font-medium hover:text-red-500 duration-200 h-[48px]">
+                  <h3 class="text-[16px] text-zinc-700 font-medium hover:text-red-500 duration-200 min-h-[72px] flex items-start leading-6">
                     {{ prod.name }} {{prod.specs.find(s => s.spec_key === 'Màu sắc')?.spec_value}} - Chính hãng VN/A
                   </h3>
                 </a>
@@ -126,7 +126,7 @@ const tabClass = (tabId) => {
               </div>
 
               <!-- Ưu đãi ngân hàng -->
-              <div class="bg-[#F1F1F1] rounded-lg mt-3 mx-3 py-3 px-2 mb-3">
+              <div class="bg-[#F1F1F1] rounded-lg mt-3 mx-3 py-3 px-2 mb-3 mt-auto">
                 <p class="text-xs">
                   Giảm trực tiếp 40%, tối đa <strong class="text-red-800">600.000 VNĐ</strong> khi
                   mở thẻ TP Bank EVO.

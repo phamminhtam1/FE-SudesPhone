@@ -35,9 +35,9 @@ onMounted(() => {
     <div
       class="flex flex-wrap justify-center md:justify-between gap-4 max-w-7xl w-full mx-auto pt-5 lg:whitespace-nowrap cursor-default animate-on-scroll">
       <div
-        class="flex flex-col md:flex-row items-center bg-blue-100 rounded-2xl px-4 md:px-9 py-1 transition duration-300 hover:shadow-md w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(25%-0.75rem)] animate-on-scroll">
+        class="flex flex-col md:flex-row items-center bg-blue-100 rounded-2xl px-2 md:px-9 transition duration-300 hover:shadow-md w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(25%-0.75rem)] animate-on-scroll">
         <div class="mb-2 md:mb-0 md:mr-4">
-          <img class="w-16 md:w-20 h-16 md:h-20" src="/images/freeship.png" alt="">
+          <img class="w-14 md:w-14 h-10 md:h-14" src="https://bizweb.dktcdn.net/100/480/632/themes/900313/assets/ser_1.svg?1746173377751" alt="">
         </div>
         <div class="text-center md:text-left">
           <h3 class="text-lg md:text-sm font-medium">Vận chuyển miễn phí</h3>
@@ -47,7 +47,7 @@ onMounted(() => {
       <div
         class="flex flex-col md:flex-row items-center bg-red-100 rounded-2xl px-4 md:px-9 h-auto py-2 transition duration-300 hover:shadow-md w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(25%-0.75rem)] animate-on-scroll">
         <div class="mb-2 md:mb-0 md:mr-4">
-          <img class="w-16 md:w-20 h-16 md:h-20" src="/images/cart.png" alt="">
+          <img class="w-14 md:w-14 h-10 md:h-14" src="https://bizweb.dktcdn.net/100/480/632/themes/900313/assets/ser_2.svg?1746173377751" alt="">
         </div>
         <div class="text-center md:text-left">
           <h3 class="text-lg md:text-sm font-medium">Quà tặng hấp dẫn</h3>
@@ -57,7 +57,7 @@ onMounted(() => {
       <div
         class="flex flex-col md:flex-row items-center bg-yellow-100 rounded-2xl px-4 md:px-9 h-auto py-2 transition duration-300 hover:shadow-md w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(25%-0.75rem)] animate-on-scroll">
         <div class="mb-2 md:mb-0 md:mr-4">
-          <img class="w-16 md:w-20 h-16 md:h-20" src="/images/cer.png" alt="">
+          <img class="w-14 md:w-14 h-10 md:h-14" src="https://bizweb.dktcdn.net/100/480/632/themes/900313/assets/ser_3.svg?1746173377751" alt="">
         </div>
         <div class="text-center md:text-left">
           <h3 class="text-lg md:text-sm font-medium">Chứng nhận chất lượng</h3>
@@ -67,7 +67,7 @@ onMounted(() => {
       <div
         class="flex flex-col md:flex-row items-center bg-lime-100 rounded-2xl px-4 md:px-9 h-auto py-2 transition duration-300 hover:shadow-md w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(25%-0.75rem)] animate-on-scroll">
         <div class="mb-2 md:mb-0 md:mr-4">
-          <img class="w-16 md:w-20 h-16 md:h-20" src="/images/hotline.png" alt="">
+          <img class="w-14 md:w-14 h-10 md:h-14" src="https://bizweb.dktcdn.net/100/480/632/themes/900313/assets/ser_4.svg?1746173377751" alt="">
         </div>
         <div class="text-center md:text-left">
           <h3 class="text-lg md:text-sm font-medium">Hotline: 1900 6750</h3>

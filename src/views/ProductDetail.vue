@@ -1,7 +1,7 @@
 <script setup>
 import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Navigation } from 'vue3-carousel';
-import { onMounted, ref, getCurrentInstance } from 'vue';
+import { onMounted, ref, getCurrentInstance, watch } from 'vue';
 import Swal from 'sweetalert2';
 import axios from '@/plugins/axioscustomer'
 import Loading from '@/components/Loading.vue'
@@ -20,8 +20,56 @@ const props = defineProps({
   }
 })
 
-// Đổi productId thành ref
 const productId = ref(props.id)
+
+watch(() => props.id, async (newId) => {
+  if (newId && newId !== productId.value) {
+    isLoading.value = true
+
+    selectedIndex.value = 0
+    quantity.value = 1
+    expanded.value = false
+    expanded_2.value = false
+    selectedColor.value = ''
+    selectedStorage.value = ''
+    availableColors.value = []
+    availableStorages.value = []
+    relatedProducts.value = []
+    phoneImages.value = []
+
+    try {
+      const res = await axios.get(`/api/product/${newId}`)
+      const p = res.data.product
+
+      productId.value = p.prod_id
+      name.value = p.name
+      cat_id.value = p.cat_id
+      short_desc.value = p.short_desc
+      long_desc.value = p.long_desc
+      price.value = p.price
+      discount_price.value = p.discount_price
+      stock_qty.value = p.stock_qty
+      images.value = p.images
+      specs.value = p.specs
+
+      const currentProductImages = p.images?.map(img => img.img_url) || []
+      phoneImages.value = [...currentProductImages]
+      selectedColor.value = getColorFromSpecs(p.specs)
+
+      emit('update-product-name', {
+        productName: p.name,
+        categoryName: p.category?.name,
+        categoryId: p.category?.id
+      })
+
+      await fetchRelatedProducts()
+    } catch (err) {
+      console.error(err)
+      isLoading.value = false
+    }
+  }
+}, { immediate: false })
+
 const name = ref('')
 const cat_id = ref('')
 const short_desc = ref('')
@@ -287,7 +335,7 @@ async function addCart() {
 
 <template>
   <Loading v-if="isLoading" />
-  <div v-else class="max-w-7xl mx-auto">
+  <div v-else class="max-w-7xl mx-auto" :key="productId">
     <div class="grid grid-cols-9 w-full pt-2">
       <div class="col-span-3 mt-6">
         <div class=" flex justify-center items-center h-105 overflow-hidden">
@@ -366,7 +414,7 @@ async function addCart() {
         </div>
         <!-- Thêm phần chọn bộ nhớ trong -->
         <div class="flex items-center mt-5">
-          <h2 class="text-zinc-500 font-medium">Bộ nhớ trong: </h2>
+          <h2 class="text-zinc-500 font-medium">Phiên bản: </h2>
           <span class="ml-2 font-medium">{{ selectedStorage || 'Không rõ' }}</span>
         </div>
         <div class="flex mt-4 gap-5">
