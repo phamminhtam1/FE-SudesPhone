@@ -101,6 +101,12 @@ const goProductbySearch = (prod_id) => {
   isSearch.value = ''
 }
 
+const gotoSearch = async () => {
+  if (!isSearch.value) return
+  await router.push(`/search/${isSearch.value}`)
+  isSearchFocused.value = false
+  isSearch.value = ''
+}
 watch([isSearch], async () => {
   await reSearchProduct()
 })
@@ -141,7 +147,7 @@ watch([isSearch], async () => {
                   </g>
                 </svg>
               </label>
-              <button type="submit"
+              <button @click="gotoSearch"
                 class="px-4 py-1 bg-gradient-to-b from-zinc-900 to-zinc-700 rounded-r-md outline-none focus:outline-none cursor-pointer hover:from-red-500 hover:to-red-400 hover:border-red-500">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="white" class=""
                   viewBox="0 0 16 16">
@@ -200,8 +206,10 @@ watch([isSearch], async () => {
                       <span class="text-[13px] text-zinc-600 font-medium line-clamp-2">{{ data.name }} - Chính hãng VN/A
                       </span>
                       <div class="flex items-center gap-2">
-                        <span class="text-[14px] text-red-800 font-medium">{{ data.discount_price }}đ</span>
-                        <span class="text-[12px] line-through text-zinc-400 font-medium">{{ data.price }}đ</span>
+                        <span class="text-[14px] text-red-800 font-medium">{{ new
+                      Intl.NumberFormat('vi-VN').format(data.discount_price) }}đ</span>
+                        <span class="text-[12px] line-through text-zinc-400 font-medium">{{ new
+                      Intl.NumberFormat('vi-VN').format(data.price) }}đ</span>
                       </div>
                     </div>
                   </div>

@@ -51,6 +51,7 @@ import WebsiteIntroduction from '@/views/Admin/Website/Website-Introduction.vue'
 import IntroductionPage from '@/views/IntroductionPage.vue'
 import WebsitePolicy from '@/views/Admin/Website/Website-Policy.vue'
 import PolicyPage from '@/views/PolicyPage.vue'
+import SearchPage from '@/views/SearchPage.vue'
 
 // Branch routes
 const branchRoutes = [
@@ -357,6 +358,12 @@ const FERouters = [
         path: '/policy',
         name: 'website-policy',
         component: PolicyPage,
+        props: true,
+      },
+      {
+        path: '/search/:keyword',
+        name: 'search-product',
+        component: SearchPage,
         props: true,
       },
     ],

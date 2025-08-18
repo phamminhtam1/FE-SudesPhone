@@ -4,7 +4,6 @@ import { Carousel, Slide, Navigation } from 'vue3-carousel';
 import { onMounted, ref, getCurrentInstance, watch } from 'vue';
 import Swal from 'sweetalert2';
 import axios from '@/plugins/axioscustomer'
-import Loading from '@/components/Loading.vue'
 import { useCartStore } from '@/stores/cart'
 import { useBlogPostStore } from '@/stores/blogpostfe';
 import { storeToRefs } from 'pinia';
@@ -334,8 +333,69 @@ async function addCart() {
 </script>
 
 <template>
-  <Loading v-if="isLoading" />
-  <div v-else class="max-w-7xl mx-auto" :key="productId">
+  <div class="max-w-7xl mx-auto" :key="productId">
+    <div v-if="isLoading" class="grid grid-cols-9 w-full pt-2">
+      <div class="col-span-3 mt-6">
+        <div class=" flex justify-center items-center overflow-hidden">
+          <div class="w-4/5 h-[420px] bg-zinc-200 rounded-md animate-pulse"></div>
+        </div>
+        <div class="w-full mt-3 grid grid-cols-5 gap-2">
+          <div v-for="n in 5" :key="n" class="p-1">
+            <div class="w-20 h-22 bg-zinc-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+        <div class="mt-4 w-full h-24 bg-zinc-200 rounded-lg animate-pulse"></div>
+      </div>
+      <div class="col-span-4 ml-2 mr-2 p-3">
+        <div class=" border-b-1 border-zinc-300 pb-5">
+          <div class="space-y-2">
+            <div class="h-7 w-3/4 bg-zinc-200 rounded animate-pulse"></div>
+            <div class="h-4 w-40 bg-zinc-200 rounded animate-pulse"></div>
+          </div>
+          <div class=" mt-2 flex gap-2">
+            <div class="h-4 w-28 bg-zinc-200 rounded animate-pulse"></div>
+            <div class="h-4 w-4 bg-zinc-200 rounded animate-pulse"></div>
+            <div class="h-4 w-40 bg-zinc-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+        <div class="flex items-center mt-4 gap-4">
+          <div class="h-7 w-40 bg-zinc-200 rounded animate-pulse"></div>
+          <div class="h-5 w-32 bg-zinc-200 rounded animate-pulse"></div>
+        </div>
+        <div class="flex items-center mt-5 gap-2">
+          <div class="h-4 w-20 bg-zinc-200 rounded animate-pulse"></div>
+          <div class="h-4 w-24 bg-zinc-200 rounded animate-pulse"></div>
+        </div>
+        <div class="flex mt-4 gap-4">
+          <div v-for="n in 5" :key="n" class="h-7 w-7 rounded-full bg-zinc-200 animate-pulse"></div>
+        </div>
+        <div class="flex items-center mt-5 gap-2">
+          <div class="h-4 w-20 bg-zinc-200 rounded animate-pulse"></div>
+          <div class="h-4 w-16 bg-zinc-200 rounded animate-pulse"></div>
+        </div>
+        <div class="flex mt-4 gap-3">
+          <div v-for="n in 3" :key="n" class="px-6 py-2 rounded-2xl bg-zinc-200 animate-pulse"></div>
+        </div>
+        <div class="mt-8 space-y-2">
+          <div class="h-4 w-3/4 bg-zinc-200 rounded animate-pulse"></div>
+          <div class="h-4 w-2/3 bg-zinc-200 rounded animate-pulse"></div>
+          <div class="h-4 w-1/2 bg-zinc-200 rounded animate-pulse"></div>
+        </div>
+        <div class="grid grid-cols-10 mt-8 gap-5">
+          <div class="col-span-7 h-16 bg-zinc-200 rounded-lg animate-pulse"></div>
+          <div class="col-span-3 h-16 bg-zinc-200 rounded-lg animate-pulse"></div>
+        </div>
+      </div>
+      <div class="col-span-2 p-2 -ml-2">
+        <div class=" border border-zinc-200 rounded-xl h-64 bg-zinc-200 animate-pulse"></div>
+        <div class=" border border-zinc-200 rounded-xl h-64 bg-zinc-200 animate-pulse mt-5"></div>
+        <div class="flex flex-col mt-5 gap-3">
+          <div class="h-12 bg-zinc-200 rounded-lg animate-pulse"></div>
+          <div class="h-12 bg-zinc-200 rounded-lg animate-pulse"></div>
+        </div>
+      </div>
+    </div>
+    <div v-else>
     <div class="grid grid-cols-9 w-full pt-2">
       <div class="col-span-3 mt-6">
         <div class=" flex justify-center items-center h-105 overflow-hidden">
@@ -687,6 +747,7 @@ async function addCart() {
         </div>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
