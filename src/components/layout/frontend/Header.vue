@@ -101,8 +101,51 @@ const goProductbySearch = (prod_id) => {
   isSearch.value = ''
 }
 
+const file = ref(null)
+const handleFileChange = async (e) => {
+  const selected = e.target.files && e.target.files[0]
+  if (!selected) return
+  file.value = selected
+  // Save preview to sessionStorage so Search page can display it
+  try {
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        sessionStorage.setItem('image_search_preview', String(reader.result || ''))
+        sessionStorage.setItem('image_search_preview_ts', String(Date.now()))
+      } catch (err) {
+        console.warn('Failed to store image preview', err)
+      }
+    }
+    reader.readAsDataURL(selected)
+  } catch (err) {
+    console.warn('Failed to read image for preview', err)
+  }
+  try {
+    const form = new FormData()
+    form.append('file', selected)
+    const res = await axios.post('/api/ai/classifier/predict', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    const predictions = res?.data?.predictions || []
+    if (predictions.length) {
+      const labels = predictions.map((p) => encodeURIComponent(String(p.label)))
+      await router.push(`/search/${labels.join(',')}`)
+      isSearchFocused.value = false
+      isSearch.value = ''
+    }
+  } catch (err) {
+    console.error('Image search failed', err)
+  }
+}
 const gotoSearch = async () => {
   if (!isSearch.value) return
+  try {
+    sessionStorage.removeItem('image_search_preview')
+    sessionStorage.removeItem('image_search_preview_ts')
+  } catch (err) {
+    console.warn('Failed clearing image preview', err)
+  }
   await router.push(`/search/${isSearch.value}`)
   isSearchFocused.value = false
   isSearch.value = ''
@@ -133,7 +176,7 @@ watch([isSearch], async () => {
                 class="flex-1 px-2 py-1 bg-white border border-gray-200 border-r-0 rounded-l-md placeholder-gray-500 text-gray-800 outline-none focus:outline-none"
                 placeholder="Tìm sản phẩm..." />
               <label class="absolute right-12 top-0 cursor-pointer hover:bg-zinc-300 px-4 py-1 pb-2 hover:text-white">
-                <input type="file" class="hidden" />
+                <input @change="handleFileChange" type="file" class="hidden" />
                 <svg viewBox="0 -2 32 32" version="1.1" width="22" height="22" xmlns="http://www.w3.org/2000/svg"
                   xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
                   fill="fill-current">

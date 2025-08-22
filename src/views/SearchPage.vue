@@ -1,7 +1,9 @@
 <script setup>
 import { defineProps, ref, watch } from 'vue';
 import axiosCustomer from '@/plugins/axioscustomer';
-import { onMounted } from 'vue';
+import { getCurrentInstance } from 'vue';
+import { onMounted, computed } from 'vue';
+const { emit } = getCurrentInstance()
 
 const props = defineProps({
   keyword: {
@@ -12,33 +14,96 @@ const props = defineProps({
 
 const products = ref([])
 const isLoading = ref(false)
+const imageSearchPreview = ref('')
 
+// Parse route param to an ordered list of labels (support comma-separated labels)
+const keywords = computed(() => {
+  if (!props.keyword) return []
+  return String(props.keyword)
+    .split(',')
+    .map((k) => decodeURIComponent(k).trim())
+    .filter(Boolean)
+})
+
+// Fetch products for a single keyword and return the array (no global state side-effects)
 async function fetchProduct(keyword) {
+  const res = await axiosCustomer.get(
+    `/api/product?page=1&per_page=16&keyword=${encodeURIComponent(keyword)}`,
+  )
+  return res.data.product.data || []
+}
+
+// Fetch and merge products for all keywords
+async function fetchProductsForKeywords(list) {
   try {
     isLoading.value = true
-    const res = await axiosCustomer.get(`/api/product?page=1&per_page=16&keyword=${keyword}`)
-    products.value = res.data.product.data
+    if (!list || !list.length) {
+      products.value = []
+      return
+    }
+    const requests = list.map((kw) => fetchProduct(kw))
+    const results = await Promise.allSettled(requests)
+    const merged = []
+    const seen = new Set()
+    for (const r of results) {
+      if (r.status === 'fulfilled' && Array.isArray(r.value)) {
+        for (const p of r.value) {
+          if (!seen.has(p.prod_id)) {
+            seen.add(p.prod_id)
+            merged.push(p)
+          }
+        }
+      }
+    }
+    products.value = merged
   } finally {
     isLoading.value = false
   }
 }
+
 onMounted(() => {
-  fetchProduct(props.keyword)
+  emit('update-product-name', { productName: 'Tìm kiếm' })
+  try {
+    // Prefer most recent preview if exists
+    const img = sessionStorage.getItem('image_search_preview')
+    if (img) {
+      imageSearchPreview.value = img
+    }
+  } catch (err) {
+    console.warn('Failed to load image preview', err)
+  }
+  fetchProductsForKeywords(keywords.value)
 })
 
 watch(
   () => props.keyword,
   (newKeyword, oldKeyword) => {
     if (newKeyword !== oldKeyword) {
-      fetchProduct(newKeyword)
+      fetchProductsForKeywords(
+        String(newKeyword)
+          .split(',')
+          .map((k) => decodeURIComponent(k).trim())
+          .filter(Boolean),
+      )
     }
-  }
+  },
 )
 
 </script>
 
 <template>
   <div class="max-w-7xl mx-auto mt-5">
+    <div v-if="imageSearchPreview" class="mb-4 rounded-lg border border-zinc-200 bg-white overflow-hidden">
+      <div class="flex items-center gap-3 p-3">
+        <img :src="imageSearchPreview" alt="searched image" class="w-16 h-16 object-cover rounded-md border border-zinc-200" />
+        <div class="flex-1">
+          <p class="text-sm text-zinc-700 font-medium">Kết quả tìm kiếm theo hình ảnh đã tải lên</p>
+          <p class="text-xs text-zinc-500">Các sản phẩm gợi ý dựa trên AI</p>
+        </div>
+        <button class="text-xs px-2 py-1 rounded bg-zinc-100 hover:bg-zinc-200 text-zinc-600"
+          @click="imageSearchPreview = ''">Ẩn</button>
+      </div>
+    </div>
     <h1 class=" uppercase font-medium text-zinc-800">
       {{ isLoading ? 'Đang tải...' : `Có ${products.length} kết quả tìm kiếm phù hợp` }}
     </h1>
@@ -62,9 +127,10 @@ watch(
     </div>
 
     <div v-else-if="products.length" class="grid grid-cols-4 gap-5 mt-5">
-      <div class="col-span-1 group border border-zinc-200 rounded-lg p-1 shadow-lg" v-for="product in products" :key="product.prod_id">
+      <router-link :to="`/product-detail/${product.prod_id}`" v-for="product in products" :key="product.prod_id" class="cursor-pointer">
+      <div class="col-span-1 group border border-zinc-200 rounded-lg p-1 shadow-lg">
         <div class="flex justify-center items-center relative">
-          <img class="transform scale-95 group-hover:scale-100 duration-300 w-[280px] h-[320px] object-cover py-2"
+          <img class="transform scale-95 group-hover:scale-100 duration-300 w-[280px] h-[350px] object-fixed py-2"
             :src="product.images[0].img_url"
             alt="">
           <label
@@ -99,9 +165,10 @@ watch(
           <p class="text-xs">
             Giảm trực tiếp 40%, tối đa <strong class="text-red-800">600.000 VNĐ</strong> khi
             mở thẻ TP Bank EVO.
-          </p>
+            </p>
+          </div>
         </div>
-      </div>
+      </router-link>
     </div>
     <div v-else-if="!isLoading && !products.length" class="mt-6 text-center text-zinc-600">
       Không tìm thấy sản phẩm phù hợp.

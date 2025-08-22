@@ -9,6 +9,7 @@
       <div class="mt-2 flex justify-center">
         <div class="w-[200px] border-b border-zinc-400"></div>
       </div>
+
     </div>
 
     <div
@@ -25,7 +26,7 @@
             fill="#ffffff"></path>
         </svg>
         <button class="cursor-pointer ml-2 hover:-translate-y-0.5 transition duration-300">
-          <router-link to="/admin/dasboard">Dashboard</router-link>
+          <router-link to="/admin/dasboard">Trang chủ</router-link>
         </button>
       </div>
 

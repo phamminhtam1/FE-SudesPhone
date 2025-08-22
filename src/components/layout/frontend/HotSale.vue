@@ -83,8 +83,8 @@ const carouselBreakpoints = {
                 <!-- Ảnh sản phẩm -->
                 <div class="flex flex-col -mt-6">
                   <a href="#">
-                    <div class="flex justify-center">
-                      <img class="transform scale-95 group-hover:scale-100 duration-300 w-[221px] h-[276px] py-5"
+                    <div class="flex justify-center p-2">
+                      <img class="transform scale-95 group-hover:scale-100 duration-300 w-[221px] h-[300px] py-7"
                         :src="prod.images[0].img_url" alt="iPhone 12" />
                     </div>
                   </a>
